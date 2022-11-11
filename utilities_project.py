@@ -38,7 +38,10 @@ def drive_connect_to_path(path):
 def pandas_read_csv(path_file, _delimiter):
     information = pd.Series()
     try:
-        information = pd.read_csv(path_file, delimiter=_delimiter)
+        if _delimiter == None:
+            information = pd.read_csv(path_file)
+        else:
+            information = pd.read_csv(path_file, delimiter=_delimiter)
     except Exception as exc:
         print(f"\nERROR An error occurs while reading CSV file with pandas")
 
