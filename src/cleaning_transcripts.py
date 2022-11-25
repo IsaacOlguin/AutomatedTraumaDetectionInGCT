@@ -51,6 +51,8 @@ def cleanParagraphsICFYtranscript(src_content):
     final_content = re.sub(RE_PARAGRAPH_WITH_TIMESTAMP, GLB_EMPTY_STRING, final_content, flags=RE_GLB_CASE)
     # Remove spaces before and after the current content
     final_content = final_content.strip()
+    # Possible:
+    # - (Luncheon Adjournment)
 
     return final_content
 
