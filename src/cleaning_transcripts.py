@@ -33,6 +33,8 @@ GLB_ECCC_PATTERN_BEGIN_CONTENT_OF_INTEREST = "P R O C E E D I N G S"
 RE_ECCC_SENT_NUMBER_AT_THE_BEGINNING = r'(?m)^(\d+)( )+'#r'( )*\d+( )+'#r'^(\w+|^( ))( )*\d+( )+'
 RE_ECCC_SENT_IDS_HEADER = r'\w+\d+\/\d+\.\d+(\n)*\d+'
 RE_ECCC_SENT_TIMESTAMPS = r'\[\d{2}\.\d{2}\.\d{2}\]'
+RE_ICTR_SENT_DATE = r'\d{2}( )\w{3}( )\d{2}'
+RE_ICTR_SENT_JUST_NUMBERS = r'( )*\d+( )+\n'
 
 #################################################################################
 ### Cleaning of transcripts of the "International Criminal Tribunal of the 
@@ -121,3 +123,24 @@ def cleanPagePdfECCCtranscript(src_content, page_content):
             list_content.append(result)
 
     return list_content
+
+
+#################################################################################
+### Cleaning PDF of the "International Criminal Tribunal for Rwanda"
+#== @input string with the content extracted from a PDF file.
+#== @return string after cleaning
+"""
+Evidences for implementation:
+    - ICTR -CHAMBER is repeated in the case was shared. Still pending of validation whether this happens with all cases. Last page of the analysed document presents a pattern with a difference of one character
+    - There's a word at the beginning of the document that should be removed. However, this may be different from case to case
+    - WARNING: Extraction of information shows poor results.
+"""
+def cleanPagePdfICTRtranscript(src_content):
+    # Remove the dates inserted in the transcript
+    result = re.sub(RE_ICTR_SENT_DATE, GLB_EMPTY_STRING, src_content, flags=RE_GLB_CASE)
+    # Remove rows with single numbers and newline
+    result = re.sub(RE_ICTR_SENT_JUST_NUMBERS, GLB_EMPTY_STRING, result, flags=RE_GLB_CASE)
+    # Remove numbers at the beginnig of the sentence
+    result = re.sub(RE_ECCC_SENT_NUMBER_AT_THE_BEGINNING, GLB_EMPTY_STRING, result, flags=RE_GLB_CASE)
+
+    return result.strip()
