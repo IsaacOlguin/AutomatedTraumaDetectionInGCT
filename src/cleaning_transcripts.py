@@ -25,6 +25,14 @@ RE_PARAGRAPH_WITH_REDACTED = r'\(redacted\)'
 RE_PARAGRAPH_WITH_OPEN_OR_CLOSED_SESSION = r'\((Open|Close) session\)'
 RE_PARAGRAPH_WITH_SHORT_ADJOURMENT = r'\(Short Adjournment\)'
 RE_PARAGRAPH_WITH_TIMESTAMP = r'\(\d+\.\d+ (p\.m\.|a\.m\.)\)(.|( )*)|\(\d+\.\d+\)'
+RE_SENTENCE_BEGIN_WITH_NUMBER_AND_SPACES = r'( )*\d{1,2}( )*(?)+'
+RE_SENTENCE_PAGE_NUMBER = r'Page \d+'
+GLB_ECCC_ROW_RANGE_BEGIN = 1
+GLB_ECCC_ROW_RANGE_END = 25
+GLB_ECCC_PATTERN_BEGIN_CONTENT_OF_INTEREST = "P R O C E E D I N G S"
+RE_ECCC_SENT_NUMBER_AT_THE_BEGINNING = r'(?m)^(\d+)( )+'#r'( )*\d+( )+'#r'^(\w+|^( ))( )*\d+( )+'
+RE_ECCC_SENT_IDS_HEADER = r'\w+\d+\/\d+\.\d+(\n)*\d+'
+RE_ECCC_SENT_TIMESTAMPS = r'\[\d{2}\.\d{2}\.\d{2}\]'
 
 #################################################################################
 ### Cleaning of transcripts of the "International Criminal Tribunal of the 
@@ -56,3 +64,60 @@ def cleanParagraphsICFYtranscript(src_content):
 
     return final_content
 
+#################################################################################
+### Cleaning of transcripts of the "Extraordinary Chamber in the Courts 
+### of Cambodia"
+#== @input string with each row
+#== @return string after cleaning
+def cleanSentenceECCCtranscript(src_content):
+    final_content = src_content
+
+    # Remove numbers that are located at the beginning of the sentence
+    final_content = re.sub(RE_ECCC_SENT_NUMBER_AT_THE_BEGINNING, GLB_EMPTY_STRING, src_content, flags=RE_GLB_CASE)
+    # Remove IDs on the header
+    final_content = re.sub(RE_ECCC_SENT_IDS_HEADER, GLB_EMPTY_STRING, final_content, flags=RE_GLB_CASE)
+    # Remove timestamps
+    final_content = re.sub(RE_ECCC_SENT_TIMESTAMPS, GLB_EMPTY_STRING, final_content, flags=RE_GLB_CASE)
+
+    return final_content.strip()
+
+#################################################################################
+### Cleaning PDF of the "Extraordinary Chamber in the Courts of Cambodia"
+#== @input string with the content extracted from a PDF file.
+#== @return string after cleaning
+"""
+Evidences for implementation:
+    - The analysed PDF file contains information from the 4th page (index 3 in PyPDF implementation)
+    - All pages contain a header (except first page). Thus, we can ommit the first 10 rows (at least)
+    - All pages with the information of our interest contain enumerated rows from 1 to 25
+    - First page with information of our interest contain the text "P R O C E E D I N G S". We can iterate over pages and start from the one this pattern is found
+    - Pages with information of our interest contain the number on the top.
+"""
+def cleanPagePdfECCCtranscript(src_content, page_content):
+    list_content = list()
+
+    # Remove timestamps
+    result = re.sub(RE_ECCC_SENT_TIMESTAMPS, GLB_EMPTY_STRING, src_content, flags=RE_GLB_CASE)
+    result = result[result.index('Page'):]
+    result = re.sub(RE_SENTENCE_PAGE_NUMBER, GLB_EMPTY_STRING, result, flags = RE_GLB_CASE)
+    result = result[result.index(str(page_content))+len(str(page_content)):]
+
+    for index in range(GLB_ECCC_ROW_RANGE_BEGIN, GLB_ECCC_ROW_RANGE_END+1):
+        if index != GLB_ECCC_ROW_RANGE_END:
+            begin_index = result.index(str(index))
+            end_index = result.index(str(index+1)) #Req. improvement or validation
+
+            """
+            if result[begin_index-1] != ' ' and result[begin_index+(len(str(begin_index))+1)] != ' ':
+                begin_index = (result[begin_index+(len(str(begin_index))+1):]).index(str(index+1))
+            if end_index >= 0:
+                if (re.compile(r'\d')).match(result[end_index+1]):
+                    end_index = result[end_index+1].index(str(index+1))
+            """
+            sent = result[begin_index: end_index]
+            list_content.append(sent)
+            result = result[result.index(sent)+len(sent):]
+        else:
+            list_content.append(result)
+
+    return list_content
