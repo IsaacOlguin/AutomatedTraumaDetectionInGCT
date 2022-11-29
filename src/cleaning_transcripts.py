@@ -31,7 +31,7 @@ GLB_ECCC_ROW_RANGE_BEGIN = 1
 GLB_ECCC_ROW_RANGE_END = 25
 GLB_ECCC_PATTERN_BEGIN_CONTENT_OF_INTEREST = "P R O C E E D I N G S"
 RE_ECCC_SENT_NUMBER_AT_THE_BEGINNING = r'(?m)^(\d+)'#r'( )*\d+( )+'#r'^(\w+|^( ))( )*\d+( )+'
-RE_ECCC_SENT_IDS_HEADER = r'\w+\d+\/\d+\.\d+(\n)*\d+'
+RE_ECCC_SENT_IDS_HEADER = r'\w+\d+\/\d+\.\d+'
 RE_ECCC_SENT_TIMESTAMPS = r'\[\d{2}\.\d{2}\.\d{2}\]'
 RE_ICTR_SENT_DATE = r'\d{2}( )\w{3}( )\d{2}'
 RE_ICTR_SENT_JUST_NUMBERS = r'( )*\d+( )+\n'
@@ -74,6 +74,7 @@ def cleanParagraphsICFYtranscript(src_content):
 def cleanSentenceECCCtranscript(src_content):
     final_content = ""
 
+    src_content = src_content.strip()
     # Remove numbers that are located at the beginning of the sentence
     final_content = re.sub(RE_ECCC_SENT_NUMBER_AT_THE_BEGINNING, GLB_EMPTY_STRING, src_content, flags=RE_GLB_CASE)
     # Remove IDs on the header
