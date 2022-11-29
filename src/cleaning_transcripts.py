@@ -30,7 +30,7 @@ RE_SENTENCE_PAGE_NUMBER = r'Page \d+'
 GLB_ECCC_ROW_RANGE_BEGIN = 1
 GLB_ECCC_ROW_RANGE_END = 25
 GLB_ECCC_PATTERN_BEGIN_CONTENT_OF_INTEREST = "P R O C E E D I N G S"
-RE_ECCC_SENT_NUMBER_AT_THE_BEGINNING = r'(?m)^(\d+)( )+'#r'( )*\d+( )+'#r'^(\w+|^( ))( )*\d+( )+'
+RE_ECCC_SENT_NUMBER_AT_THE_BEGINNING = r'(?m)^(\d+)'#r'( )*\d+( )+'#r'^(\w+|^( ))( )*\d+( )+'
 RE_ECCC_SENT_IDS_HEADER = r'\w+\d+\/\d+\.\d+(\n)*\d+'
 RE_ECCC_SENT_TIMESTAMPS = r'\[\d{2}\.\d{2}\.\d{2}\]'
 RE_ICTR_SENT_DATE = r'\d{2}( )\w{3}( )\d{2}'
@@ -72,7 +72,7 @@ def cleanParagraphsICFYtranscript(src_content):
 #== @input string with each row
 #== @return string after cleaning
 def cleanSentenceECCCtranscript(src_content):
-    final_content = src_content
+    final_content = ""
 
     # Remove numbers that are located at the beginning of the sentence
     final_content = re.sub(RE_ECCC_SENT_NUMBER_AT_THE_BEGINNING, GLB_EMPTY_STRING, src_content, flags=RE_GLB_CASE)
@@ -106,16 +106,14 @@ def cleanPagePdfECCCtranscript(src_content, page_content):
 
     for index in range(GLB_ECCC_ROW_RANGE_BEGIN, GLB_ECCC_ROW_RANGE_END+1):
         if index != GLB_ECCC_ROW_RANGE_END:
-            begin_index = result.index(str(index))
-            end_index = result.index(str(index+1)) #Req. improvement or validation
+            begin_index = 0
+            end_index = 0
 
-            """
-            if result[begin_index-1] != ' ' and result[begin_index+(len(str(begin_index))+1)] != ' ':
-                begin_index = (result[begin_index+(len(str(begin_index))+1):]).index(str(index+1))
-            if end_index >= 0:
-                if (re.compile(r'\d')).match(result[end_index+1]):
-                    end_index = result[end_index+1].index(str(index+1))
-            """
+            list_ocurrences_begin = [ocurrence for ocurrence in re.finditer(r'( ){1}' + re.escape(str(index)) + r'( ){1}', result)]
+            begin_index = list_ocurrences_begin[0].start()#result.index(str(index))
+            list_ocurrences_end = [ocurrence for ocurrence in re.finditer(r'( ){1}' + re.escape(str(index+1)) + r'( ){1}', result)]
+            end_index = list_ocurrences_end[0].start() #result.index(str(index+1)) #Req. improvement or validation
+
             sent = result[begin_index: end_index]
             list_content.append(sent)
             result = result[result.index(sent)+len(sent):]
