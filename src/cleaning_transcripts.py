@@ -29,10 +29,12 @@ RE_SENTENCE_BEGIN_WITH_NUMBER_AND_SPACES = r'( )*\d{1,2}( )*(?)+'
 RE_SENTENCE_PAGE_NUMBER = r'Page \d+'
 GLB_ECCC_ROW_RANGE_BEGIN = 1
 GLB_ECCC_ROW_RANGE_END = 25
-GLB_ECCC_PATTERN_BEGIN_CONTENT_OF_INTEREST = "P R O C E E D I N G S"
+GLB_ECCC_PATTERN_BEGIN_CONTENT_OF_INTEREST_OPT1 = "P R O C E E D I N G S"
+GLB_ECCC_PATTERN_BEGIN_CONTENT_OF_INTEREST_OPT2 = "PROCEEDINGS"
+GLB_ECCC_PATTERN_BEGIN_CONTENT_LIST = [GLB_ECCC_PATTERN_BEGIN_CONTENT_OF_INTEREST_OPT1, GLB_ECCC_PATTERN_BEGIN_CONTENT_OF_INTEREST_OPT2]
 RE_ECCC_SENT_NUMBER_AT_THE_BEGINNING = r'(?m)^(\d+)'#r'( )*\d+( )+'#r'^(\w+|^( ))( )*\d+( )+'
 RE_ECCC_SENT_IDS_HEADER = r'\w+\d+\/\d+\.\d+'
-RE_ECCC_SENT_TIMESTAMPS = r'\[\d{2}\.\d{2}\.\d{2}\]'
+RE_ECCC_SENT_TIMESTAMPS = r'\[\d{1,2}(\.|\:)\d{2}(\.|\:)\d{2}\]'
 RE_ICTR_SENT_DATE = r'\d{2}( )\w{3}( )\d{2}'
 RE_ICTR_SENT_JUST_NUMBERS = r'( )*\d+( )+\n'
 
@@ -99,27 +101,30 @@ Evidences for implementation:
 def cleanPagePdfECCCtranscript(src_content, page_content):
     list_content = list()
 
-    # Remove timestamps
-    result = re.sub(RE_ECCC_SENT_TIMESTAMPS, GLB_EMPTY_STRING, src_content, flags=RE_GLB_CASE)
-    result = result[result.index('Page'):]
-    result = re.sub(RE_SENTENCE_PAGE_NUMBER, GLB_EMPTY_STRING, result, flags = RE_GLB_CASE)
-    result = result[result.index(str(page_content))+len(str(page_content)):]
+    try:
+        # Remove timestamps
+        result = re.sub(RE_ECCC_SENT_TIMESTAMPS, GLB_EMPTY_STRING, src_content, flags=RE_GLB_CASE)
+        result = result[result.index('Page'):]
+        result = re.sub(RE_SENTENCE_PAGE_NUMBER, GLB_EMPTY_STRING, result, flags = RE_GLB_CASE)
+        result = result[result.index(str(page_content))+len(str(page_content)):]
 
-    for index in range(GLB_ECCC_ROW_RANGE_BEGIN, GLB_ECCC_ROW_RANGE_END+1):
-        if index != GLB_ECCC_ROW_RANGE_END:
-            begin_index = 0
-            end_index = 0
+        for index in range(GLB_ECCC_ROW_RANGE_BEGIN, GLB_ECCC_ROW_RANGE_END+1):
+            if index != GLB_ECCC_ROW_RANGE_END:
+                begin_index = 0
+                end_index = 0
 
-            list_ocurrences_begin = [ocurrence for ocurrence in re.finditer(r'( ){1}' + re.escape(str(index)) + r'( ){1}', result)]
-            begin_index = list_ocurrences_begin[0].start()#result.index(str(index))
-            list_ocurrences_end = [ocurrence for ocurrence in re.finditer(r'( ){1}' + re.escape(str(index+1)) + r'( ){1}', result)]
-            end_index = list_ocurrences_end[0].start() #result.index(str(index+1)) #Req. improvement or validation
+                list_ocurrences_begin = [ocurrence for ocurrence in re.finditer(r'( ){1}' + re.escape(str(index)) + r'( ){1}', result)]
+                begin_index = list_ocurrences_begin[0].start()#result.index(str(index))
+                list_ocurrences_end = [ocurrence for ocurrence in re.finditer(r'( ){1}' + re.escape(str(index+1)) + r'( ){1}', result)]
+                end_index = list_ocurrences_end[0].start() #result.index(str(index+1)) #Req. improvement or validation
 
-            sent = result[begin_index: end_index]
-            list_content.append(sent)
-            result = result[result.index(sent)+len(sent):]
-        else:
-            list_content.append(result)
+                sent = result[begin_index: end_index]
+                list_content.append(sent)
+                result = result[result.index(sent)+len(sent):]
+            else:
+                list_content.append(result)
+    except Exception as e:
+        list_content = None
 
     return list_content
 

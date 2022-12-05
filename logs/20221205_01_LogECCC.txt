@@ -1,0 +1,63 @@
+1) Number of retrieved paragraphs of transcript http://www.eccc.gov.kh/sites/default/files/documents/courtdoc/%5Bdate-in-tz%5D/E1_67.1_TR001_20090824_Final_EN_Pub.pdf is 2650 was reduced to 2545
+2) Number of retrieved paragraphs of transcript http://www.eccc.gov.kh/sites/default/files/documents/courtdoc/%5Bdate-in-tz%5D/E1_66.1_TR001_20090820_Final_EN_Pub.pdf is 2250 was reduced to 2141
+3) Number of retrieved paragraphs of transcript http://www.eccc.gov.kh/sites/default/files/documents/courtdoc/%5Bdate-in-tz%5D/E1_63.1_TR001_20090817_Final_EN_Pub.pdf is 3000 was reduced to 2874
+4) Number of retrieved paragraphs of transcript http://www.eccc.gov.kh/sites/default/files/documents/courtdoc/%5Bdate-in-tz%5D/E1_42.1_TR001_20090702_Final_EN_Pub.pdf is 2475 was reduced to 2379
+5) Number of retrieved paragraphs of transcript http://www.eccc.gov.kh/sites/default/files/documents/courtdoc/%5Bdate-in-tz%5D/E1_41.1_TR001_20090701_Final_EN_Pub.pdf is 2600 was reduced to 2481
+6) Number of retrieved paragraphs of transcript http://www.eccc.gov.kh/sites/default/files/documents/courtdoc/E1_40.1_TR001_20090630_Final_EN_Pub.pdf is 2350 was reduced to 2240
+7) Number of retrieved paragraphs of transcript http://www.eccc.gov.kh/sites/default/files/documents/courtdoc/%5Bdate-in-tz%5D/E1_39.1_TR001_20090629_Final_EN_Pub.pdf is 2675 was reduced to 2564
+8) Number of retrieved paragraphs of transcript http://www.eccc.gov.kh/sites/default/files/documents/courtdoc/%5Bdate-in-tz%5D/E1_11.1_TR001_20090409_Final_EN_Pub_2.pdf is 2650 was reduced to 2547
+9) Number of retrieved paragraphs of transcript http://www.eccc.gov.kh/sites/default/files/documents/courtdoc/%5Bdate-in-tz%5D/E1_64.1_TR001_20090818_Final_EN_Pub.pdf is 2825 was reduced to 2711
+10) Number of retrieved paragraphs of transcript http://www.eccc.gov.kh/sites/default/files/documents/courtdoc/%5Bdate-in-tz%5D/E1_61.1_TR001_20090811_Final_EN_Pub.pdf is 2900 was reduced to 2772
+11) Number of retrieved paragraphs of transcript http://www.eccc.gov.kh/sites/default/files/documents/courtdoc/E1_60.1_TR001_20090810_Final_EN_Pub.pdf is 2450 was reduced to 2322
+12) Number of retrieved paragraphs of transcript http://www.eccc.gov.kh/sites/default/files/documents/courtdoc/%5Bdate-in-tz%5D/E1_56.1_TR001_20090803_Final_EN_Pub.pdf is 2550 was reduced to 2419
+13) Number of retrieved paragraphs of transcript http://www.eccc.gov.kh/sites/default/files/documents/courtdoc/%5Bdate-in-tz%5D/E1_73.1_TR001_20090902_Final_EN_Pub_2.pdf is 2425 was reduced to 2322
+14) Number of retrieved paragraphs of transcript http://www.eccc.gov.kh/sites/default/files/documents/courtdoc/%5Bdate-in-tz%5D/E1_65.1_TR001_20090819_Final_EN_Pub.pdf is 2400 was reduced to 2292
+15) Number of retrieved paragraphs of transcript http://www.eccc.gov.kh/sites/default/files/documents/courtdoc/%5Bdate-in-tz%5D/E1_64.1_TR001_20090818_Final_EN_Pub.pdf is 2825 was reduced to 2711
+16) Number of retrieved paragraphs of transcript http://www.eccc.gov.kh/sites/default/files/documents/courtdoc/%5Bdate-in-tz%5D/E1_58.1_TR001_20090805_Final_EN_Pub_0.pdf is 2600 was reduced to 2474
+17) Number of retrieved paragraphs of transcript http://www.eccc.gov.kh/sites/default/files/documents/courtdoc/%5Bdate-in-tz%5D/E1_53.1_TR001_20090722_Final_EN_Pub.pdf is 2800 was reduced to 2665
+18) Number of retrieved paragraphs of transcript http://www.eccc.gov.kh/sites/default/files/documents/courtdoc/%5Bdate-in-tz%5D/E1_46.1_TR001_20090709_Final_EN_Pub.pdf is 2475 was reduced to 2358
+19) Number of retrieved paragraphs of transcript http://www.eccc.gov.kh/sites/default/files/documents/courtdoc/%5Bdate-in-tz%5D/E1_72.1_TR001_20090901_Final_EN_Pub.pdf is 2800 was reduced to 2677
+20) Number of retrieved paragraphs of transcript http://www.eccc.gov.kh/sites/default/files/documents/courtdoc/%5Bdate-in-tz%5D/E1_12.1_TR001_20090420_Final_EN_Pub_0.pdf is 2675 was reduced to 2529
+21) Number of retrieved paragraphs of transcript http://www.eccc.gov.kh/sites/default/files/documents/courtdoc/%5Bdate-in-tz%5D/E1_73.1_TR001_20090902_Final_EN_Pub_1.pdf is 2425 was reduced to 2322
+22) Number of retrieved paragraphs of transcript http://www.eccc.gov.kh/sites/default/files/documents/courtdoc/%5Bdate-in-tz%5D/E1_72.1_TR001_20090901_Final_EN_Pub_0.pdf is 2800 was reduced to 2677
+23) Number of retrieved paragraphs of transcript http://www.eccc.gov.kh/sites/default/files/documents/courtdoc/%5Bdate-in-tz%5D/E1_62.1_TR001_20090812_Final_EN_Pub.pdf is 1975 was reduced to 1879
+24) Number of retrieved paragraphs of transcript http://www.eccc.gov.kh/sites/default/files/documents/courtdoc/%5Bdate-in-tz%5D/E1_56.1_TR001_20090803_Final_EN_Pub.pdf is 2550 was reduced to 2419
+25) Number of retrieved paragraphs of transcript http://www.eccc.gov.kh/sites/default/files/documents/courtdoc/%5Bdate-in-tz%5D/E1_54.1_TR001_20090727_Final_EN_Pub.pdf is 2625 was reduced to 2508
+
+
+
+########################################### After changing PREFIX PROCEEDINGS
+1) Number of retrieved paragraphs of transcript http://www.eccc.gov.kh/sites/default/files/documents/courtdoc/%5Bdate-in-tz%5D/E1_511.1_TR002_20161212_Final_EN_Pub.pdf is 2600 was reduced to 2422
+2) Number of retrieved paragraphs of transcript http://www.eccc.gov.kh/sites/default/files/documents/courtdoc/%5Bdate-in-tz%5D/E1_507.1_TR002_20161206_Final_EN_Pub.pdf is 2775 was reduced to 2589
+3) Number of retrieved paragraphs of transcript http://www.eccc.gov.kh/sites/default/files/documents/courtdoc/%5Bdate-in-tz%5D/E1_505.1_TR002_20161201_Final_EN_Pub.pdf is 2700 was reduced to 2523
+4) Number of retrieved paragraphs of transcript http://www.eccc.gov.kh/sites/default/files/documents/courtdoc/%5Bdate-in-tz%5D/E1_500.1_TR002_20161121_Final_EN_Pub.pdf is 2275 was reduced to 2143
+5) Number of retrieved paragraphs of transcript http://www.eccc.gov.kh/sites/default/files/documents/courtdoc/%5Bdate-in-tz%5D/E1_498.1_TR002_20161110_Final_EN_Redacted_Pub.pdf is 2750 was reduced to 2586
+6) Number of retrieved paragraphs of transcript http://www.eccc.gov.kh/sites/default/files/documents/courtdoc/%5Bdate-in-tz%5D/E1_493.1_TR002_20161101_Final_EN_Pub.pdf is 2650 was reduced to 2501
+7) Number of retrieved paragraphs of transcript http://www.eccc.gov.kh/sites/default/files/documents/courtdoc/%5Bdate-in-tz%5D/E1_484.1_TR002_20161017_Final_EN_Pub.pdf is 2550 was reduced to 2396
+8) Number of retrieved paragraphs of transcript http://www.eccc.gov.kh/sites/default/files/documents/courtdoc/%5Bdate-in-tz%5D/E1_476.1_TR002_20160919_Final_EN_Pub.pdf is 2575 was reduced to 2399
+9) Number of retrieved paragraphs of transcript http://www.eccc.gov.kh/sites/default/files/documents/courtdoc/2016-12-13%2011%3A45/E1_461.1_TR002_20160822_Final_EN_Pub.pdf is 2500 was reduced to 2339
+10) Number of retrieved paragraphs of transcript http://www.eccc.gov.kh/sites/default/files/documents/courtdoc/2016-12-05%2015%3A24/E1_453.1_TR002_20160802_Final_EN_Pub.pdf is 2050 was reduced to 1911
+11) Number of retrieved paragraphs of transcript http://www.eccc.gov.kh/sites/default/files/documents/courtdoc/2016-04-06%2017%3A56/E1_405.1_TR002_20160321_Final_EN_Pub.pdf is 2550 was reduced to 2395
+12) Number of retrieved paragraphs of transcript http://www.eccc.gov.kh/sites/default/files/documents/courtdoc/2016-05-10%2015%3A55/E1_410.1_TR002_20160329_Final_EN_Pub.pdf is 2600 was reduced to 2440
+13) Number of retrieved paragraphs of transcript http://www.eccc.gov.kh/sites/default/files/documents/courtdoc/2016-03-31%2022%3A17/E1_400.1_TR002_20160311_Final_EN_Pub.pdf is 2500 was reduced to 2332
+14) Number of retrieved paragraphs of transcript http://www.eccc.gov.kh/sites/default/files/documents/courtdoc/2016-03-17%2022%3A15/E1_396.1_TR002_20160303_Final_EN_Pub.pdf is 2675 was reduced to 2501
+15) Number of retrieved paragraphs of transcript http://www.eccc.gov.kh/sites/default/files/documents/courtdoc/2015-09-15%2022%3A27/E1_343.1_TR002_20150908_Final_EN_Pub.pdf is 2425 was reduced to 2279
+16) Number of retrieved paragraphs of transcript http://www.eccc.gov.kh/sites/default/files/documents/courtdoc/2015-06-17%2011%3A31/E1_313.1_TR002_20150610_Final_EN_Pub.pdf is 2475 was reduced to 2320
+17) Number of retrieved paragraphs of transcript http://www.eccc.gov.kh/sites/default/files/documents/courtdoc/%5Bdate-in-tz%5D/E1-311-1.pdf is 2125 was reduced to 1996
+18) Number of retrieved paragraphs of transcript http://www.eccc.gov.kh/sites/default/files/documents/courtdoc/2015-08-06%2021%3A13/E1_304.1_TR002_20150525_Final_EN_Pub.pdf is 2750 was reduced to 2587
+http://www.eccc.gov.kh/sites/default/files/documents/courtdoc/2015-05-25%2013%3A19/E1_300.1_TR002_20150518_Final_EN_Pub.pdf
+
+
+############################################
+https://www.eccc.gov.kh/sites/default/files/documents/courtdoc/2015-05-25%2013%3A19/E1_300.1_TR002_20150518_Final_EN_Pub.pdf NOTHING
+
+
+
+########################################### 
+
+1) Number of retrieved paragraphs of transcript http://www.eccc.gov.kh/sites/default/files/documents/courtdoc/2015-06-11%2016%3A05/E1_297.1_TR002_20150505_Final_EN_Pub.pdf is 1950 was reduced to 1810
+2) Number of retrieved paragraphs of transcript http://www.eccc.gov.kh/sites/default/files/documents/courtdoc/%5Bdate-in-tz%5D/E1_278.1_TR002_20150317_Final_EN_Pub.pdf is 2475 was reduced to 2322
+3) Number of retrieved paragraphs of transcript http://www.eccc.gov.kh/sites/default/files/documents/courtdoc/%5Bdate-in-tz%5D/E1_290.1_TR002_20150422_Final_EN_Pub.pdf is 2250 was reduced to 2136
+4) Number of retrieved paragraphs of transcript http://www.eccc.gov.kh/sites/default/files/documents/courtdoc/%5Bdate-in-tz%5D/E1_277.1_TR002_20150316_Final_EN_Pub_0.pdf is 2450 was reduced to 2311
+5) Number of retrieved paragraphs of transcript http://www.eccc.gov.kh/sites/default/files/documents/courtdoc/2015-04-06%2013%3A06/E1_274.1_TR002_20150310_Final_EN_Pub.pdf is 2075 was reduced to 1949
+6) Number of retrieved paragraphs of transcript http://www.eccc.gov.kh/sites/default/files/documents/courtdoc/%5Bdate-in-tz%5D/E1_270.1_TR002_20150303_Final_EN_Pub.pdf is 1200 was reduced to 1109
