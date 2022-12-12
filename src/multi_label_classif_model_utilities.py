@@ -476,10 +476,10 @@ def train_and_validate(model, device, num_epochs, optimizer, scheduler, train_da
             # Update the learning rate.
             scheduler.step()
 
-            train_acc = accuracy_score(train_targets, train_preds)
-            train_precision = precision_score(train_targets, train_preds)
-            train_recall = recall_score(train_targets, train_preds)
-            train_f1 = f1_score(train_targets, train_preds)
+            train_acc = accuracy_score(train_targets, train_preds, average=None)
+            train_precision = precision_score(train_targets, train_preds, average=None)
+            train_recall = recall_score(train_targets, train_preds, average=None)
+            train_f1 = f1_score(train_targets, train_preds, average=None)
 
             io_total_train_acc += train_acc
             io_total_train_prec += train_precision
@@ -580,10 +580,10 @@ def train_and_validate(model, device, num_epochs, optimizer, scheduler, train_da
             # accumulate it over all batches.
             total_eval_accuracy += flat_accuracy(logits, label_ids)
             
-            valid_acc = accuracy_score(valid_targets, valid_preds)
-            valid_precision = precision_score(valid_targets, valid_preds)
-            valid_recall = recall_score(valid_targets, valid_preds)
-            valid_f1 = f1_score(valid_targets, valid_preds)
+            valid_acc = accuracy_score(valid_targets, valid_preds, average=None)
+            valid_precision = precision_score(valid_targets, valid_preds, average=None)
+            valid_recall = recall_score(valid_targets, valid_preds, average=None)
+            valid_f1 = f1_score(valid_targets, valid_preds, average=None)
 
             io_total_valid_acc += valid_acc
             io_total_valid_prec += valid_precision
