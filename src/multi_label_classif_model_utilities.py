@@ -17,9 +17,13 @@ from torch.utils.data import DataLoader, RandomSampler
 from transformers import BertForSequenceClassification, AdamW, BertConfig
 from torch.optim.lr_scheduler import CosineAnnealingLR
 import datetime
+from datetime import date
 import random
 import time
 from sklearn.metrics import f1_score, precision_score, recall_score, accuracy_score
+import os
+from os.path import join
+import json
 
 ###############################################################
 ## GLOBALS
@@ -639,3 +643,15 @@ def train_and_validate(model, device, num_epochs, optimizer, scheduler, train_da
     print("Total training took {:} (h:mm:ss)".format(format_time(time.time()-total_t0)))
 
     return model, training_stats
+##==========================================================================================================
+"""
+Function: save_json_file_statistics_model
+"""
+def save_json_file_statistics_model(statistics_model, path_directory):
+    filename = date.today().strftime("%Y%m%d") + "_statistics_model.json"
+    
+    json_file = open(join(path_directory, filename), "w")
+    json_file.write(json.dumps(statistics_model, indent=4))
+    json_file.close()
+    
+    return join(path_directory, filename)
