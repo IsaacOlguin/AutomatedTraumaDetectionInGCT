@@ -381,13 +381,14 @@ def train_and_validate(model, device, num_epochs, optimizer, scheduler, train_da
         total_train_loss = 0
 
         io_total_train_acc = 0
-        io_total_train_prec = 0
-        io_total_train_recall = 0
-        io_total_train_f1 = 0
         io_total_valid_acc = 0
-        io_total_valid_prec = 0
-        io_total_valid_recall = 0
-        io_total_valid_f1 = 0
+        
+        train_precision_array = list()
+        train_recall_array    = list()
+        train_f1_array        = list()
+        val_precision_array   = list()
+        val_recall_array      = list()
+        val_f1_array          = list()
 
         # Put the model into training mode. Don't be mislead--the call to 
         # `train` just changes the *mode*, it doesn't *perform* the training.
@@ -477,25 +478,23 @@ def train_and_validate(model, device, num_epochs, optimizer, scheduler, train_da
             scheduler.step()
 
             train_acc = accuracy_score(train_targets, train_preds)
-            train_precision = precision_score(train_targets, train_preds, average="macro")
-            train_recall = recall_score(train_targets, train_preds, average="macro")
-            train_f1 = f1_score(train_targets, train_preds, average="macro")
-
             io_total_train_acc += train_acc
-            io_total_train_prec += train_precision
-            io_total_train_recall += train_recall
-            io_total_train_f1 += train_f1
+            
+            train_precision_array.append([precision_score(train_targets, train_preds, average="macro"), precision_score(train_targets, train_preds, average="micro")])
+            train_recall_array.append([recall_score(train_targets, train_preds, average="macro"), recall_score(train_targets, train_preds, average="micro")])
+            train_f1_array.append([f1_score(train_targets, train_preds, average="macro"), f1_score(train_targets, train_preds, average="micro")])
 
         io_avg_train_acc = io_total_train_acc / len(train_dataloader)
-        io_avg_train_prec = io_total_train_prec / len(train_dataloader)
-        io_avg_train_recall = io_total_train_recall / len(train_dataloader)
-        io_avg_train_f1 = io_total_train_f1 / len(train_dataloader)
+        train_precision_array = np.asarray(train_precision_array)
+        train_recall_array    = np.asarray(train_recall_array)
+        train_f1_array        = np.asarray(train_f1_array)
+        
         print(
             f'Epoch {epoch_i+1} : \n\
             Train_acc : {io_avg_train_acc}\n\
-            Train_F1 : {io_avg_train_f1}\n\
-            Train_precision : {io_avg_train_prec}\n\
-            Train_recall : {io_avg_train_recall}'
+            Train_precision (macro, micro): {(np.sum(train_precision_array, axis=0)/len(train_dataloader))}\n\
+            Train_recall  (macro, micro): {(np.sum(train_recall_array, axis=0)/len(train_dataloader))}\n\
+            Train_F1 : {(np.sum(train_f1_array, axis=0)/len(train_dataloader))}'
         )
 
         # Calculate the average loss over all of the batches.
@@ -581,25 +580,19 @@ def train_and_validate(model, device, num_epochs, optimizer, scheduler, train_da
             total_eval_accuracy += flat_accuracy(logits, label_ids)
             
             valid_acc = accuracy_score(valid_targets, valid_preds)
-            valid_precision = precision_score(valid_targets, valid_preds, average="macro")
-            valid_recall = recall_score(valid_targets, valid_preds, average="macro")
-            valid_f1 = f1_score(valid_targets, valid_preds, average="macro")
-
             io_total_valid_acc += valid_acc
-            io_total_valid_prec += valid_precision
-            io_total_valid_recall += valid_recall
-            io_total_valid_f1 += valid_f1
+            
+            val_precision_array.append([precision_score(valid_targets, valid_preds, average="macro"), precision_score(valid_targets, valid_preds, average="micro")])
+            val_recall_array.append([recall_score(valid_targets, valid_preds, average="macro"), recall_score(valid_targets, valid_preds, average="micro")])
+            val_f1_array.append([f1_score(valid_targets, valid_preds, average="macro"), f1_score(valid_targets, valid_preds, average="micro")])
 
         io_avg_valid_acc = io_total_valid_acc / len(validation_dataloader)
-        io_avg_valid_prec = io_total_valid_prec / len(validation_dataloader)
-        io_avg_valid_recall = io_total_valid_recall / len(validation_dataloader)
-        io_avg_valid_f1 = io_total_valid_f1 / len(validation_dataloader)
         print(
                 f'Epoch {epoch_i+1} : \n\
                 Valid_acc : {io_avg_valid_acc}\n\
-                Valid_F1 : {io_avg_valid_f1}\n\
-                Valid_precision : {io_avg_valid_prec}\n\
-                Valid_recall : {io_avg_valid_recall}'
+                Valid_precision (macro, micro): {(np.sum(val_precision_array, axis=0)/len(validation_dataloader))}\n\
+                Valid_recall (macro, micro): {(np.sum(val_recall_array, axis=0)/len(validation_dataloader))}\n\
+                Valid_F1 (macro, micro): {(np.sum(val_f1_array, axis=0)/len(validation_dataloader))}'
             )
 
         # Report the final accuracy for this validation run.
@@ -621,14 +614,20 @@ def train_and_validate(model, device, num_epochs, optimizer, scheduler, train_da
                 'epoch': epoch_i + 1,
                 'Training Loss': avg_train_loss,
                 'Training Accur.': io_avg_train_acc,
-                'Training F1': io_avg_train_f1,
-                'Training Precision': io_avg_train_prec, 
-                'Training Recall': io_avg_train_recall,
+                'Training Precision (macro)': (np.sum(train_precision_array, axis=0)/len(train_dataloader))[0], 
+                'Training Precision (micro)': (np.sum(train_precision_array, axis=0)/len(train_dataloader))[1], 
+                'Training Recall (macro)': (np.sum(train_recall_array, axis=0)/len(train_dataloader))[0],
+                'Training Recall (micro)': (np.sum(train_recall_array, axis=0)/len(train_dataloader))[1],
+                'Training F1 (macro)': (np.sum(train_f1_array, axis=0)/len(train_dataloader))[0],
+                'Training F1 (micro)': (np.sum(train_f1_array, axis=0)/len(train_dataloader))[1],
                 'Valid. Loss': avg_val_loss,
                 'Valid. Accur.': avg_val_accuracy,
-                'Valid. F1': io_avg_valid_f1,
-                'Valid. Precision': io_avg_valid_prec, 
-                'Valid. Recall': io_avg_valid_recall,
+                'Valid. Precision (macro)': (np.sum(val_precision_array, axis=0)/len(validation_dataloader))[0], 
+                'Valid. Precision (micro)': (np.sum(val_precision_array, axis=0)/len(validation_dataloader))[1], 
+                'Valid. Recall (macro)': (np.sum(val_recall_array, axis=0)/len(validation_dataloader))[0],
+                'Valid. Recall (micro)': (np.sum(val_recall_array, axis=0)/len(validation_dataloader))[1],
+                'Valid. F1 (macro)': (np.sum(val_f1_array, axis=0)/len(validation_dataloader))[0],
+                'Valid. F1 (micro)': (np.sum(val_f1_array, axis=0)/len(validation_dataloader))[1],
                 'Training Time': training_time,
                 'Validation Time': validation_time
             }
@@ -639,4 +638,4 @@ def train_and_validate(model, device, num_epochs, optimizer, scheduler, train_da
 
     print("Total training took {:} (h:mm:ss)".format(format_time(time.time()-total_t0)))
 
-    return model
+    return model, training_stats
