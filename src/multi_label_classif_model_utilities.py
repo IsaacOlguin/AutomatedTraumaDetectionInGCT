@@ -8,22 +8,30 @@
 ###############################################################
 ## IMPORTS
 
+# numpy
+import numpy as np
+# pandas
 import pandas as pd
+# torch
 import torch
 from torch.utils.data import TensorDataset, random_split
-import numpy as np
-from sklearn.model_selection import train_test_split
 from torch.utils.data import DataLoader, RandomSampler
-from transformers import BertForSequenceClassification, AdamW, BertConfig
 from torch.optim.lr_scheduler import CosineAnnealingLR
+#Transformers
+from transformers import BertForSequenceClassification, AdamW, BertConfig
+# sklearn
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import f1_score, precision_score, recall_score, accuracy_score
+from sklearn.model_selection import KFold
+# general
 import datetime
 from datetime import date
 import random
 import time
-from sklearn.metrics import f1_score, precision_score, recall_score, accuracy_score
 import os
 from os.path import join
 import json
+
 
 ###############################################################
 ## GLOBALS
@@ -257,6 +265,13 @@ def split_dataset_train_val_test(labels, input_ids, attention_masks, test_size_p
         )
 
     return train_labels_corpus, train_input_ids, train_attention_masks, val_labels_corpus, val_input_ids, val_attention_masks, test_labels_corpus, test_input_ids, test_attention_masks
+##==========================================================================================================
+"""
+Function: split_dataset_train_val_test_k_fold
+"""
+def split_dataset_train_val_test_k_fold(number_splits, x, y):
+    cv_folds = list()
+    
 ##==========================================================================================================
 """
 Function: create_dataloader
@@ -648,10 +663,12 @@ def train_and_validate(model, device, num_epochs, optimizer, scheduler, train_da
 Function: save_json_file_statistics_model
 """
 def save_json_file_statistics_model(statistics_model, path_directory):
-    filename = date.today().strftime("%Y%m%d") + "_statistics_model.json"
+    filename = datetime.datetime.now().strftime("%Y%m%d_%H%M%S") + "_statistics_model.json"
     
     json_file = open(join(path_directory, filename), "w")
     json_file.write(json.dumps(statistics_model, indent=4))
     json_file.close()
     
     return join(path_directory, filename)
+    
+    
