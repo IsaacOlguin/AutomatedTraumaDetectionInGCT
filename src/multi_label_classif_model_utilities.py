@@ -269,8 +269,40 @@ def split_dataset_train_val_test(labels, input_ids, attention_masks, test_size_p
 """
 Function: split_dataset_train_val_test_k_fold
 """
-def split_dataset_train_val_test_k_fold(number_splits, x, y):
+def split_dataset_train_val_test_k_fold(labels, input_ids, attention_masks, percentage_test=0.1, number_splits=5, rdm_state=42, _shuffle=True):    
+    train_valid_indices, test_indices = train_test_split(
+        np.arange(len(labels)), 
+        test_size=percentage_test, 
+        shuffle=_shuffle, 
+        stratify=labels
+    )
+    
+    # TRAINING AND VALIDATION CORPUS (labels, input_ids, attention_masks)
+    train_valid_labels = labels[train_valid_indices]
+    train_valid_input_ids = input_ids[train_valid_indices]
+    train_valid_attention_masks = attention_masks[train_valid_indices]
+
+    # TEST: (labels, input_ids, attention_masks)
+    test_labels_corpus = labels[test_indices] 
+    test_input_ids = input_ids[test_indices]
+    test_attention_masks = attention_masks[test_indices]
+    
+    #=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*
+    
     cv_folds = list()
+    kf = KFold(n_splits=number_splits, shuffle=_shuffle, random_state=rdm_state)
+    
+    for index, (train_index, val_index) in enumerate(kf.split(train_valid_labels)):
+        x_train_input_ids,    x_val_input_ids    = train_valid_input_ids[train_index], train_valid_input_ids[val_index]
+        y_train_labels,       y_val_labels       = train_valid_labels[train_index], train_valid_labels[val_index]
+        z_train_attntn_masks, z_val_attntn_masks = train_valid_attention_masks[train_index], train_valid_attention_masks[val_index]
+        
+        print(f'{index}) Len of train_index={len(train_index)} VS len of val_index={len(val_index)}')
+        
+        cv_folds.append([y_train_labels, x_train_input_ids, z_train_attntn_masks, y_val_labels, x_val_input_ids, z_val_attntn_masks])
+        
+    return cv_folds, [test_labels_corpus, test_input_ids, test_attention_masks]
+        
     
 ##==========================================================================================================
 """
