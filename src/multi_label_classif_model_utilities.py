@@ -12,6 +12,8 @@
 import numpy as np
 # pandas
 import pandas as pd
+# matplotlib
+import matplotlib.pyplot as plt
 # torch
 import torch
 from torch.utils.data import TensorDataset, random_split
@@ -23,6 +25,8 @@ from transformers import BertForSequenceClassification, AdamW, BertConfig
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import f1_score, precision_score, recall_score, accuracy_score
 from sklearn.model_selection import KFold
+from sklearn.metrics import classification_report, confusion_matrix
+from sklearn.metrics import plot_confusion_matrix as plot_confusion_matrix_sklearn
 # general
 import datetime
 from datetime import date
@@ -385,7 +389,7 @@ def format_time(elapsed):
 """
 Function: format_time
 """
-def train_and_validate(model, device, num_epochs, optimizer, scheduler, train_dataloader, validation_dataloader):
+def train_and_validate(model, device, num_epochs, optimizer, scheduler, train_dataloader, validation_dataloader, classes):
     tr_metrics = []
     va_metrics = []
     tmp_print_flag = True
@@ -557,6 +561,9 @@ def train_and_validate(model, device, num_epochs, optimizer, scheduler, train_da
         print("")
         print("  Average training loss: {0:.2f}".format(avg_train_loss))
         print("  Training epoch took: {:}".format(training_time))
+        
+        show_classification_report(train_targets, train_preds, f"Classification report. TRAINING at epoch {epoch_i+1}")
+        #show_confusion_matrix(train_targets, train_preds, classes, f"Confusion matrix of training at epoch {epoch_i+1}")
             
         # ========================================
         #               Validation
@@ -658,6 +665,8 @@ def train_and_validate(model, device, num_epochs, optimizer, scheduler, train_da
         
         print("  Validation Loss: {0:.2f}".format(avg_val_loss))
         print("  Validation took: {:}".format(validation_time))
+        
+        show_classification_report(valid_targets, valid_preds, f"Classification report. VALIDATION at epoch {epoch_i+1}")
 
         # Record all statistics from this epoch.
         training_stats.append(
@@ -702,5 +711,44 @@ def save_json_file_statistics_model(statistics_model, path_directory):
     json_file.close()
     
     return join(path_directory, filename)
-    
-    
+##==========================================================================================================
+"""
+Function: show_classification_report
+"""
+def show_classification_report(ground_truth, prediction, title):
+    print(title + "\n", classification_report(ground_truth, prediction))
+##==========================================================================================================
+"""
+Function: show_confusion_matrix
+"""
+def show_confusion_matrix(ground_truth, prediction, _classes, _title):
+    plot_confusion_matrix(ground_truth, prediction, classes=_classes, title=_title)
+    plt.show()
+##==========================================================================================================
+"""
+Function: plot_confusion_matrix
+""" 
+def plot_confusion_matrix(y_true, y_pred, classes,
+                          title=None,
+                          cmap=plt.cm.Blues):
+    cm = confusion_matrix(y_true, y_pred)
+    fig, ax = plt.subplots(figsize=(8, 8))
+    im = ax.imshow(cm, interpolation='nearest', cmap=cmap)
+    ax.figure.colorbar(im, ax=ax)
+    ax.set(xticks=np.arange(cm.shape[1]),
+           yticks=np.arange(cm.shape[0]),
+           # ... and label them with the respective list entries
+           xticklabels=classes, yticklabels=classes,
+           title=title,
+           ylabel='True label',
+           xlabel='Predicted label')
+    plt.setp(ax.get_xticklabels(), rotation=45, ha="right",
+             rotation_mode="anchor")
+    thresh = cm.max() / 2.
+    for i in range(cm.shape[0]):
+        for j in range(cm.shape[1]):
+            ax.text(j, i, format(cm[i, j], 'd'),
+                    ha="center", va="center",
+                    color="white" if cm[i, j] > thresh else "black")
+    fig.tight_layout()
+    return ax
