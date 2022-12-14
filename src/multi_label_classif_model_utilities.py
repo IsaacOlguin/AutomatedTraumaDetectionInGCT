@@ -387,7 +387,7 @@ def format_time(elapsed):
     return str(datetime.timedelta(seconds=elapsed_rounded))
 ##==========================================================================================================
 """
-Function: format_time
+Function: train_and_validate
 """
 def train_and_validate(model, device, num_epochs, optimizer, scheduler, train_dataloader, validation_dataloader, classes):
     tr_metrics = []
@@ -699,6 +699,131 @@ def train_and_validate(model, device, num_epochs, optimizer, scheduler, train_da
     print("Total training took {:} (h:mm:ss)".format(format_time(time.time()-total_t0)))
 
     return model, training_stats
+##==========================================================================================================
+"""
+Function: test_model
+"""
+def test_model(model, device, test_dataloader, classes):
+    # ========================================
+    #               Test
+    # ========================================
+    # After the completion of each test epoch, measure our performance on
+    # our test set.
+    
+    test_precision_array   = list()
+    test_recall_array      = list()
+    test_f1_array          = list()
+
+    print("Running Testing...")
+
+    t0 = time.time()
+
+    # Put the model in evaluation mode--the dropout layers behave differently
+    # during evaluation.
+    model.eval()
+
+    test_preds = []
+    test_targets = []
+
+    # Tracking variables 
+    total_test_accuracy = 0
+    total_test_loss = 0
+    nb_test_steps = 0
+
+    io_total_test_acc = 0
+
+    # Evaluate data for one epoch
+    for batch in test_dataloader:
+
+        # Unpack this training batch from our dataloader. 
+        #
+        # As we unpack the batch, we'll also copy each tensor to the GPU using 
+        # the `to` method.
+        #
+        # `batch` contains three pytorch tensors:
+        #   [0]: input ids 
+        #   [1]: attention masks
+        #   [2]: labels 
+        b_input_ids = batch[0].to(device)
+        b_input_mask = batch[1].to(device)
+        b_labels = batch[2].to(device)
+
+        # Tell pytorch not to bother with constructing the compute graph during
+        # the forward pass, since this is only needed for backprop (training).
+        with torch.no_grad():        
+
+            # Forward pass, calculate logit predictions.
+            # token_type_ids is the same as the "segment ids", which 
+            # differentiates sentence 1 and 2 in 2-sentence tasks.
+            result = model(b_input_ids, 
+                            token_type_ids=None, 
+                            attention_mask=b_input_mask,
+                            labels=b_labels,
+                            return_dict=True)
+
+        # Get the loss and "logits" output by the model. The "logits" are the 
+        # output values prior to applying an activation function like the 
+        # softmax.
+        loss = result.loss
+        logits = result.logits
+
+        test_preds.extend(logits.argmax(dim=1).cpu().numpy())
+        test_targets.extend(batch[2].numpy())
+
+        # Accumulate the test loss.
+        total_test_loss += loss.item()
+
+        # Move logits and labels to CPU
+        logits = logits.detach().cpu().numpy()
+        label_ids = b_labels.to('cpu').numpy()
+
+        # Calculate the accuracy for this batch of test sentences, and
+        # accumulate it over all batches.
+        total_test_accuracy += flat_accuracy(logits, label_ids)
+
+        test_acc = accuracy_score(test_targets, test_preds)
+        test_precision_array.append([precision_score(test_targets, test_preds, average="macro"), precision_score(test_targets, test_preds, average="micro")])
+        test_recall_array.append([recall_score(test_targets, test_preds, average="macro"), recall_score(test_targets, test_preds, average="micro")])
+        test_f1_array.append([f1_score(test_targets, test_preds, average="macro"), f1_score(test_targets, test_preds, average="micro")])
+
+        io_total_test_acc += test_acc
+
+        """
+        print(
+                f'Test_acc : {test_acc}\n\
+                Test_F1 : {test_f1}\n\
+                Test_precision : {test_precision}\n\
+                Test_recall : {test_recall}\n\n\n'
+              )
+        """
+        
+    avg_test_acc = io_total_test_acc / len(test_dataloader)
+    print(
+        f'\n\
+        Valid_acc : {avg_test_acc}\n\
+        Valid_precision (macro, micro): {(np.sum(test_precision_array, axis=0)/len(test_dataloader))}\n\
+        Valid_recall (macro, micro): {(np.sum(test_recall_array, axis=0)/len(test_dataloader))}\n\
+        Valid_F1 (macro, micro): {(np.sum(test_f1_array, axis=0)/len(test_dataloader))}'
+    )
+    
+    # Report the final accuracy for this test run.
+    avg_test_accuracy = total_test_accuracy / len(test_dataloader)
+    print("  Accuracy: {0:.2f}".format(avg_test_accuracy))
+
+    # Calculate the average loss over all of the batches.
+    avg_test_loss = total_test_loss / len(test_dataloader)
+
+    # Measure how long the test run took.
+    test_time = format_time(time.time() - t0)
+
+    print("  Test Loss: {0:.2f}".format(avg_test_loss))
+    print("  Test took: {:}".format(test_time))
+               
+    show_classification_report(test_targets, test_preds, "Classification report. TEST")
+    
+def save_model(model, model_name, path):
+    modelname_path = join(path, datetime.datetime.now().strftime("%Y%m%d_%H%M%S") + "_" + model_name + ".pt")
+    torch.save(model.state_dict(), modelname_path)
 ##==========================================================================================================
 """
 Function: save_json_file_statistics_model
