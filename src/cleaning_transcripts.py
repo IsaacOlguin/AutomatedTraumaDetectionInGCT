@@ -18,6 +18,14 @@ RE_PARAGRAPH_WITH_B_TAG_AND_NUM_PAGES = r'<P><B>( )*Page (\d)+( )*</B></P>'
 RE_PARAGRAPH_WITH_TEXT_BLANK_PAGE_INSERTED = r'(<P>( \d+|\d+)( )*Blank page inserted to ensure pagination corresponds between the French and( )*</P>)|(<P>( \d+|\d+)( )*English transcripts.( )*</P>)'
 RE_PARAGRAPH_WITH_NUMBERS_AND_SPACES = r'<P>( \d+|\d+)( )*</P>'
 RE_PARAGRAPH_WITH_SPACES_AT_THE_END = r'</P>( )*'
+RE_SPANS_AT_THE_END = r'</span>( )*'
+RE_PARAGRAPH_WITH_CLASS_AND_STYLE = r'<P class=\"(.)*\" style=\"(.)*\">( |( )*)\d+( )*|<p>'
+RE_SPANSTYLE = r'<spanstyle=(\"|\')(.)*(\"|\')>'
+RE_SPANSTYLE_CLOSE = r'</spanstyle=(.)*>'
+RE_SPAN_WITH_CLASS_AND_STYLE = r'<span( )+style=(\"|\')(.)*(\"|\')>'
+RE_B_BEGIN_OR_END = r'<B>|</B>'
+RE_PARAGRAPH_EXCEPTION_CLASS_STYLE = r'<P class=\"(.)*\" style=\"(.)*\">'
+RE_SPAN_LANG_FR = r'<span lang=\"FR\" style=(.)*>\d+( )*Page(s?) (\d+|\d+-\d+) redacted\. (Private|Closed) session\.'
 RE_PARAGRAPH_WITH_NUMBERS_AND_SPACES_AT_THE_BEGINNING = r'<P>( )*\d+( )*'
 RE_SPECIFIC_TAGS = r'<HTML>|</HTML>|<center>|</center>|</FONT>|</BODY>|<FONT FACE(.*)>'
 RE_PARAGRAPH_WITH_PAGE_CLOSED_SESSION = r'page (\d+) redacted – closed session'
@@ -47,10 +55,20 @@ RE_ICTR_SENT_JUST_NUMBERS = r'( )*\d+( )+\n'
 def cleanParagraphsICFYtranscript(src_content):
     # Remove content that is within "b" tag with num of pages
     final_content = re.sub(RE_PARAGRAPH_WITH_B_TAG_AND_NUM_PAGES, GLB_EMPTY_STRING, src_content, flags=RE_GLB_CASE)
+    #
+    final_content = re.sub(RE_SPANSTYLE, GLB_EMPTY_STRING, final_content, flags=RE_GLB_CASE)    
+    #
+    final_content = re.sub(RE_SPAN_WITH_CLASS_AND_STYLE, GLB_EMPTY_STRING, final_content, flags=RE_GLB_CASE)    
     # Remove spaces at the end of the paragraph
     final_content = re.sub(RE_PARAGRAPH_WITH_SPACES_AT_THE_END, GLB_EMPTY_STRING, final_content, flags=RE_GLB_CASE)
+    #
+    final_content = re.sub(RE_SPANS_AT_THE_END, GLB_EMPTY_STRING, final_content, flags=RE_GLB_CASE)    
+    #
+    final_content = re.sub(RE_B_BEGIN_OR_END, GLB_EMPTY_STRING, final_content, flags=RE_GLB_CASE)
     # Remove numbers and and spaces at the beginning of the paragraph
     final_content = re.sub(RE_PARAGRAPH_WITH_NUMBERS_AND_SPACES_AT_THE_BEGINNING, GLB_EMPTY_STRING, final_content, flags=RE_GLB_CASE)
+    #
+    final_content = re.sub(RE_PARAGRAPH_WITH_CLASS_AND_STYLE, GLB_EMPTY_STRING, final_content, flags=RE_GLB_CASE)
     # Remove "page \d+ redacted - closed session"
     final_content = re.sub(RE_PARAGRAPH_WITH_PAGE_CLOSED_SESSION, GLB_EMPTY_STRING, final_content, flags=RE_GLB_CASE)
     # Remove "(redacted)"
@@ -61,6 +79,12 @@ def cleanParagraphsICFYtranscript(src_content):
     final_content = re.sub(RE_PARAGRAPH_WITH_SHORT_ADJOURMENT, GLB_EMPTY_STRING, final_content, flags=RE_GLB_CASE)
     # Remove timestaps within the transcript
     final_content = re.sub(RE_PARAGRAPH_WITH_TIMESTAMP, GLB_EMPTY_STRING, final_content, flags=RE_GLB_CASE)
+    #
+    final_content = re.sub(RE_PARAGRAPH_EXCEPTION_CLASS_STYLE, GLB_EMPTY_STRING, final_content, flags=RE_GLB_CASE)
+    #
+    final_content = re.sub(RE_SPAN_LANG_FR, GLB_EMPTY_STRING, final_content, flags=RE_GLB_CASE)
+    #
+    final_content = re.sub(RE_SPANSTYLE_CLOSE, GLB_EMPTY_STRING, final_content, flags=RE_GLB_CASE)
     # Remove spaces before and after the current content
     final_content = final_content.strip()
     # Possible:
