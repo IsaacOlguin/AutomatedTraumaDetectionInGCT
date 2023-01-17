@@ -1,0 +1,27 @@
+google_drive_friendly: True
+    
+general_set_up:
+    dataset_filename: "Dataset.xlsx"
+    input_dir_name: "input"
+    output_dir_name: "output"
+    dataset_dir_name: "dataset"
+    logs_dir_name: "logs"
+    models_dir_name: "models"
+    
+dataset:
+    index_columns_dataset: 0
+    list_columns_names: ["id_document", "id_annotation", "span", "role", "trauma", "court"]
+
+training_model:
+    epochs: 3
+    batch_size: 8
+    embedding_size: 512
+    return_attention_mask: True
+    cross_validation: True
+    save_model: False
+    store_statistics: False
+    test_model: False
+    add_special_tokes: True
+    max_length: 512
+    pad_to_max_length: True
+    run_in_gpu: True

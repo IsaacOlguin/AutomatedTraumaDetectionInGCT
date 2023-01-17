@@ -1,43 +1,56 @@
-####### Global variables
-#GLB_INSTALL_DEPENDENCIES = False
-#GLB_USE_DRIVE_ACCOUNT = False
-
-
-####### Install dependencies
-#if GLB_INSTALL_DEPENDENCIES:
-#    !pip install transformers
-#    !pip install torch
-#    !pip install openpyxl
 
 ####### Imports
+import yaml
 import pandas as pd
 import torch
 import numpy as np
 import matplotlib.pyplot as plt
 import json
+import os
+from os.path import join
 
 import multi_label_classif_model_utilities as mlclassif_utilities
 
 ####### Globals
-PATH_DATASET = "../input/dataset/Dataset.xlsx"
-PATH_DIR_LOGS = "../logs/"
-PATH_DIR_MODELS = "../models/"
-INDEX_COLUMNS_DATASET = 0
-LIST_NAME_COLUMNS_DATASET = ["id_document", "id_annotation", "span", "role", "trauma", "court"]
+GLB_DEFINE_PATH_PROJECT = False
+PATH_PROJECT = ""
 
-GLB_RETURN_ATTENTION_MASK = True
-GLB_CROSS_VALIDATION = True
-GLB_SAVE_MODEL = False
-GLB_STORE_STATISTICS_MODEL = False
-GLB_TEST_MODEL = False
+if GLB_DEFINE_PATH_PROJECT:
+    PATH_PROJECT = "/content/drive/MyDrive/Colab Notebooks/AutomatedTraumaDetectionInGCT"
+else:
+    PATH_PROJECT = os.getcwd()
+
+with open(join(PATH_PROJECT, "config.yml"), "r") as ymlfile:
+    cfg = yaml.safe_load(ymlfile)
+
+print(cfg)
+
+PATH_DATASET = join( PATH_PROJECT, cfg["general_set_up"]["input_dir_name"], cfg["general_set_up"]["dataset_dir_name"], cfg["general_set_up"]["dataset_filename"] )
+PATH_DIR_LOGS = join( PATH_PROJECT, cfg["general_set_up"]["logs_dir_name"] )
+PATH_DIR_MODELS = join( PATH_PROJECT, cfg["general_set_up"]["models_dir_name"] )
+INDEX_COLUMNS_DATASET = cfg["dataset"]["index_columns_dataset"]
+LIST_NAME_COLUMNS_DATASET = cfg["dataset"]["list_columns_names"]
+GLB_RETURN_ATTENTION_MASK = cfg["training_model"]["return_attention_mask"]
+GLB_CROSS_VALIDATION = cfg["training_model"]["cross_validation"]
+GLB_SAVE_MODEL = cfg["training_model"]["save_model"]
+GLB_STORE_STATISTICS_MODEL = cfg["training_model"]["store_statistics"]
+GLB_TEST_MODEL = cfg["training_model"]["test_model"]
 
 # Globals for the model
-EPOCHS = 3
-EMBEDDING_SIZE = 512
-NUM_CLASSES = 7
-BATCH_SIZE = 8
+EPOCHS = cfg["training_model"]["epochs"]
+EMBEDDING_SIZE = cfg["training_model"]["embedding_size"]
+BATCH_SIZE = cfg["training_model"]["batch_size"]
 
-######## Implementation
+############################################################################################################################
+############################################################################################################################
+############################################################################################################################
+############################################################################################################################
+########
+######## BEGIN Implementation
+########
+############################################################################################################################
+############################################################################################################################
+
 df_dataset = mlclassif_utilities.import_dataset_from_excel(PATH_DATASET, INDEX_COLUMNS_DATASET, LIST_NAME_COLUMNS_DATASET)
 print(df_dataset.head())
 
@@ -50,7 +63,11 @@ courts_dataset = mlclassif_utilities.get_unique_values_from_dataset(df_dataset, 
 print(f"Num of different courts in the dataset is {len(courts_dataset)} which are:")
 for index, elem in enumerate(courts_dataset):
     print("\t", index+1, "-", elem)
-
+    
+####################################################################################
+##### IMPORTANT: Number of classes for the classification task
+NUM_CLASSES = len(classes_dataset) # This global corresponds to this specific task
+####################################################################################
 
 device = mlclassif_utilities.get_gpu_device_if_exists()
 
@@ -74,9 +91,9 @@ all_spans_tokenized = mlclassif_utilities.get_all_spans_tokenized(
     mlclassif_utilities.GLB_BERT_MODEL_ID, 
     tokenizer,
     list_all_spans,
-    _add_special_tokens = True, 
-    _max_length = 512,
-    _pad_to_max_length = True,
+    _add_special_tokens = cfg["training_model"]["add_special_tokes"], 
+    _max_length = cfg["training_model"]["max_length"],
+    _pad_to_max_length = cfg["training_model"]["pad_to_max_length"],
     _return_attention_mask = GLB_RETURN_ATTENTION_MASK, 
     type_tensors = mlclassif_utilities.GLB_PYTORCH_TENSOR_TYPE
 )
@@ -100,15 +117,11 @@ else:
     ### Pending k-Fold
     train_val_corpus_cross_validation, test_corpus_cross_validation = mlclassif_utilities.split_dataset_train_val_test_k_fold(numeric_classes, input_ids, attention_masks, 0.1)
 
-    #test_labels_corpus, test_input_ids, test_attention_masks = 
-    #train_labels_corpus, train_input_ids, train_attention_masks, val_labels_corpus, val_input_ids, val_attention_masks,
-
-
 model = mlclassif_utilities.create_model(
     mlclassif_utilities.GLB_BERT_MODEL_ID,
     mlclassif_utilities.GLB_BERT_BASE_UNCASED_MODEL_NAME,
     NUM_CLASSES,
-    True #RunInGPU
+    cfg["training_model"]["run_in_gpu"] #RunInGPU
 )
 
 
@@ -146,4 +159,4 @@ if GLB_TEST_MODEL:
     mlclassif_utilities.test_model(model, device, test_dataloader, numeric_classes.tolist())
 
 if GLB_SAVE_MODEL:
-    mlclassif_utilities.save_model(model, "model_bert_7_classes", PATH_DIR_MODELS)
+    mlclassif_utilities.save_model(model, "model_bert_" + NUM_CLASSES + "_classes", PATH_DIR_MODELS)
