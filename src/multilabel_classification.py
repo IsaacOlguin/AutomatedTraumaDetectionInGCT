@@ -114,7 +114,7 @@ numeric_classes = mlclassif_utilities.convert_list_labels_into_pytorch_tensor(nu
 if not GLB_CROSS_VALIDATION:
     train_labels_corpus, train_input_ids, train_attention_masks, val_labels_corpus, val_input_ids, val_attention_masks, test_labels_corpus, test_input_ids, test_attention_masks = mlclassif_utilities.split_dataset_train_val_test(numeric_classes, input_ids, attention_masks)
 else:
-    ### Pending k-Fold
+    ### k-Fold
     train_val_corpus_cross_validation, test_corpus_cross_validation = mlclassif_utilities.split_dataset_train_val_test_k_fold(numeric_classes, input_ids, attention_masks, 0.1)
 
 model = mlclassif_utilities.create_model(

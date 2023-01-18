@@ -13,13 +13,15 @@ dataset:
     list_columns_names: ["id_document", "id_annotation", "span", "role", "trauma", "court"]
     col_of_interest_binary_classif: "trauma"
     col_of_interest_multi_label_classif: "role"
+    col_of_reference_binary_classif: "span"
+    col_of_reference_multi_label_classif: "span"
 
 training_model:
     epochs: 3
     batch_size: 8
     embedding_size: 512
     return_attention_mask: True
-    cross_validation: True
+    cross_validation: False
     save_model: False
     store_statistics: False
     test_model: False
@@ -27,3 +29,8 @@ training_model:
     max_length: 512
     pad_to_max_length: True
     run_in_gpu: True
+    classification_task: "binary"    # [binary|multi]
+
+active_training:
+    size_splits_dataset: 5
+    classification_task: "multi"    # [binary|multi]
