@@ -17,7 +17,7 @@ GLB_DEFINE_PATH_PROJECT = False
 PATH_PROJECT = ""
 READ_FILE_MODE = "r"
 PATH_DATASET = ""
-PATH_DIR_LOGS = ""
+PATH_DIR_LOGS = "logs"
 PATH_DIR_MODELS = ""
 INDEX_COLUMNS_DATASET = ""
 LIST_NAME_COLUMNS_DATASET = ""
@@ -73,31 +73,46 @@ Return:         None
 def configure_logger(levelStdout=logging.DEBUG, levelFile=logging.DEBUG):
     global LOGGER
     
-    LOGGER = logging.getLogger()
+    LOGGER = logging.getLogger(__name__)
     LOGGER.setLevel(logging.DEBUG)
     formatter = logging.Formatter('%(asctime)s | %(levelname)s | %(message)s')
     
+    """
     stdout_handler = logging.StreamHandler(sys.stdout)
     stdout_handler.setLevel(levelStdout)
     stdout_handler.setFormatter(formatter)
+    """
     
     file_handler = logging.FileHandler(join(PATH_PROJECT, PATH_DIR_LOGS, get_datetime_format() + '_activeLearning.log'))
+    
     file_handler.setLevel(levelFile)
     file_handler.setFormatter(formatter)
     LOGGER.addHandler(file_handler)
-    LOGGER.addHandler(stdout_handler)
+    #LOGGER.addHandler(stdout_handler)
     
 def infoLog(message):
-    LOGGER.info(message)
+    if LOGGER != None:
+        LOGGER.info(message)
+    else: 
+        print(f"INFO  {message}")
 
 def debugLog(message):
-    LOGGER.debug(message)
+    if LOGGER != None:
+        LOGGER.debug(message)
+    else: 
+        print(f"DEBUG {message}")
     
 def errorLog(message):
-    LOGGER.error(message)
+    if LOGGER != None:
+        LOGGER.error(message)
+    else: 
+        print(f"ERROR {message}")
     
 def warnLog(message):
-    LOGGER.warn(message)
+    if LOGGER != None:
+        LOGGER.warn(message)
+    else: 
+        print(f"WARN  {message}")
 
 ###################################################################################################
 ###################################################################################################
@@ -237,7 +252,7 @@ def train(df_dataset, num_classes):
     classes_dataset = mlclassif_utilities.get_unique_values_from_dataset(df_dataset, "role")
     debugLog(f"Num of different roles in the dataset is {len(classes_dataset)} which are:")
     for index, elem in enumerate(classes_dataset):
-        print("\t", index+1, "-", elem)
+        debugLog(f"\t {index+1} - {elem}")
     
     # Define device to be used
     device = mlclassif_utilities.get_gpu_device_if_exists()
@@ -402,6 +417,7 @@ def give_me_segments_of_df_per_class(df, number_of_splits, column_of_interest, c
 
 def main():
     configure_logger()
+    mlclassif_utilities.setLogger(LOGGER)
     
     list_statistics = list()
     
