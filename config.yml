@@ -11,6 +11,8 @@ general_set_up:
 dataset:
     index_columns_dataset: 0
     list_columns_names: ["id_document", "id_annotation", "span", "role", "trauma", "court"]
+    col_of_interest_binary_classif: "trauma"
+    col_of_interest_multi_label_classif: "role"
 
 training_model:
     epochs: 3
