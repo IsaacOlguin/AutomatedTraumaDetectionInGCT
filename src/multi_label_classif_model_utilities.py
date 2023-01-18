@@ -43,6 +43,35 @@ GLB_BERT_MODEL_ID = "Bert"
 GLB_BERT_BASE_UNCASED_MODEL_NAME = "bert-base-uncased"#"nlpaueb/legal-bert-small-uncased"
 GLB_PYTORCH_TENSOR_TYPE = "pt"
 GLB_DEVICE_CPU = "cpu"
+LOGGER = None
+
+def setLogger(logger):
+    global LOGGER
+    LOGGER = logger
+
+def infoLog(message):
+    if LOGGER != None:
+        LOGGER.info(message)
+    else: 
+        print(f"INFO  {message}")
+
+def debugLog(message):
+    if LOGGER != None:
+        LOGGER.debug(message)
+    else: 
+        print(f"DEBUG {message}")
+    
+def errorLog(message):
+    if LOGGER != None:
+        LOGGER.error(message)
+    else: 
+        print(f"ERROR {message}")
+    
+def warnLog(message):
+    if LOGGER != None:
+        LOGGER.warn(message)
+    else: 
+        print(f"WARN  {message}")
 
 ###############################################################
 ## UTILITIES GENERAL IMPLEMENTATION
@@ -64,13 +93,13 @@ def get_gpu_device_if_exists():
         # Tell PyTorch to use the GPU.    
         device = torch.device("cuda")
 
-        print('There are %d GPU(s) available.\n\nThese are the available devices:' % torch.cuda.device_count())
+        infoLog('There are %d GPU(s) available.\n\nThese are the available devices:' % torch.cuda.device_count())
         for index in range(torch.cuda.device_count()):
-            print('\t', index+1, "-", torch.cuda.get_device_name(index))
+            infoLog(f'\t {index+1} - {torch.cuda.get_device_name(index)}')
 
     # If not...
     else:
-        print('No GPU available, using the CPU instead.')
+        infoLog('No GPU available, using the CPU instead.')
         device = torch.device(GLB_DEVICE_CPU)
     
     return device
@@ -106,7 +135,7 @@ def get_max_length_of_a_sentence_among_all_sentences(tokenizer, list_all_sentenc
         #max_len = max(max_len, len(input_ids))
         
     index_max = list_length_sentences.index(max(list_length_sentences))
-    print('Max sentence length: ', list_length_sentences[index_max], "found at index", index_max, ". Sentence is:\n\n\n", list_all_sentences[index_max], "\n\n\n")
+    infoLog(f'Max sentence length: {list_length_sentences[index_max]} found at index {index_max}. Sentence is:\n\n\n{list_all_sentences[index_max]}\n\n\n')
     return list_length_sentences[index_max]
 ##==========================================================================================================
 """
@@ -117,9 +146,9 @@ def get_tokenizer(model_id=GLB_BERT_MODEL_ID, model_name = GLB_BERT_BASE_UNCASED
     if(model_id == GLB_BERT_MODEL_ID):
         from transformers import BertTokenizer
 
-        print('Loading BERT tokenizer...')
+        debugLog('Loading BERT tokenizer...')
         tokenizer = BertTokenizer.from_pretrained(model_name, do_lower_case=lower_case)
-        print(f'{model_id} tokenizer was loaded successfully ({model_name})', "\n\t", f"do_lower_case={lower_case}")
+        infoLog(f'{model_id} tokenizer was loaded successfully ({model_name})\n\tdo_lower_case={lower_case}')
 
     return tokenizer
 ##==========================================================================================================
@@ -170,7 +199,7 @@ Function: convert_list_into_pytorch_tensor
 """
 def convert_list_into_pytorch_tensor(input_list):
     if type(input_list) != list:
-        print(f"Warning! - The input parameter does not correspond to the expected type value. Found {type(input_list)}")
+        warnLog(f"Warning! - The input parameter does not correspond to the expected type value. Found {type(input_list)}")
         return None
     
     return torch.cat(input_list, dim=0)
@@ -190,7 +219,7 @@ Function: convert_list_labels_into_pytorch_tensor
 """
 def convert_list_labels_into_pytorch_tensor(input_list):
     if type(input_list) != list:
-        print(f"Warning! - The input parameter does not correspond to the expected type value. Found {type(input_list)}")
+        warnLog(f"Warning! - The input parameter does not correspond to the expected type value. Found {type(input_list)}")
         return None
     
     return torch.tensor(input_list)
@@ -240,32 +269,32 @@ def split_dataset_train_val_test(labels, input_ids, attention_masks, test_size_p
     val_attention_masks = train_valid_attention_masks[valid_indices]
 
     if debug == True:
-        print("CORPUS TRAINING AND VALIDATION: ", 
-            "\n\t", f"Length labels {len(train_valid_labels)}",
-            "\n\t", f"Length input_ids {len(train_valid_input_ids)}",
-            "\n\t", f"Length attention_masks {len(train_valid_attention_masks)}",
-            "\n"
+        infoLog(f'''\nCORPUS TRAINING AND VALIDATION: 
+            \n\t Length labels {len(train_valid_labels)}
+            \n\t Length input_ids {len(train_valid_input_ids)}
+            \n\t Length attention_masks {len(train_valid_attention_masks)}
+            \n'''
             )
 
-        print("\tCORPUS TRAINING: ", 
-            "\n\t\t", f"Length labels {len(train_labels_corpus)}",
-            "\n\t\t", f"Length input_ids {len(train_input_ids)}",
-            "\n\t\t", f"Length attention_masks {len(train_attention_masks)}",
+        infoLog(f'''\n\tCORPUS TRAINING:  
+            \n\t\t Length labels {len(train_labels_corpus)}
+            \n\t\t Length input_ids {len(train_input_ids)}
+            \n\t\t Length attention_masks {len(train_attention_masks)}'''
             )
 
-        print("\tCORPUS VALIDATION: ", 
-            "\n\t\t", f"Length labels {len(val_labels_corpus)}",
-            "\n\t\t", f"Length input_ids {len(val_input_ids)}",
-            "\n\t\t", f"Length attention_masks {len(val_attention_masks)}",
+        infoLog(f'''\n\tCORPUS VALIDATION: 
+            \n\t\t Length labels {len(val_labels_corpus)}
+            \n\t\t Length input_ids {len(val_input_ids)}
+            \n\t\t Length attention_masks {len(val_attention_masks)}'''
             )
 
-        print("")
+        infoLog("")
 
-        print("CORPUS TEST: ", 
-            "\n\t", f"Length labels {len(test_labels_corpus)}",
-            "\n\t", f"Length input_ids {len(test_input_ids)}",
-            "\n\t", f"Length attention_masks {len(test_input_ids)}", 
-            "\n"
+        infoLog(f'''\nCORPUS TEST: 
+            \n\t Length labels {len(test_labels_corpus)}
+            \n\t Length input_ids {len(test_input_ids)}
+            \n\t Length attention_masks {len(test_input_ids)}
+            \n'''
         )
 
     return train_labels_corpus, train_input_ids, train_attention_masks, val_labels_corpus, val_input_ids, val_attention_masks, test_labels_corpus, test_input_ids, test_attention_masks
@@ -301,7 +330,7 @@ def split_dataset_train_val_test_k_fold(labels, input_ids, attention_masks, perc
         y_train_labels,       y_val_labels       = train_valid_labels[train_index], train_valid_labels[val_index]
         z_train_attntn_masks, z_val_attntn_masks = train_valid_attention_masks[train_index], train_valid_attention_masks[val_index]
         
-        print(f'{index}) Len of train_index={len(train_index)} VS len of val_index={len(val_index)}')
+        debugLog(f'{index}) Len of train_index={len(train_index)} VS len of val_index={len(val_index)}')
         
         cv_folds.append([y_train_labels, x_train_input_ids, z_train_attntn_masks, y_val_labels, x_val_input_ids, z_val_attntn_masks])
         
@@ -425,9 +454,9 @@ def train_and_validate(model, device, num_epochs, optimizer, scheduler, train_da
         
         # Perform one full pass over the training set.
 
-        print("")
-        print('======== Epoch {:} / {:} ========'.format(epoch_i + 1, num_epochs))
-        print('Training...')
+        debugLog("")
+        infoLog('======== Epoch {:} / {:} ========'.format(epoch_i + 1, num_epochs))
+        infoLog('Training...')
 
         # Measure how long the training epoch takes.
         t0 = time.time()
@@ -460,7 +489,7 @@ def train_and_validate(model, device, num_epochs, optimizer, scheduler, train_da
                 elapsed = format_time(time.time() - t0)
                 
                 # Report progress.
-                print('  Batch {:>5,}  of  {:>5,}.    Elapsed: {:}.'.format(step, len(train_dataloader), elapsed))
+                debugLog('  Batch {:>5,}  of  {:>5,}.    Elapsed: {:}.'.format(step, len(train_dataloader), elapsed))
 
             # Unpack this training batch from our dataloader. 
             #
@@ -544,12 +573,12 @@ def train_and_validate(model, device, num_epochs, optimizer, scheduler, train_da
         train_recall_array    = np.asarray(train_recall_array)
         train_f1_array        = np.asarray(train_f1_array)
         
-        print(
-            f'Epoch {epoch_i+1} : \n\
+        infoLog(
+            f'''Epoch {epoch_i+1} : \n\
             Train_acc : {io_avg_train_acc}\n\
             Train_precision (macro, micro): {(np.sum(train_precision_array, axis=0)/len(train_dataloader))}\n\
             Train_recall  (macro, micro): {(np.sum(train_recall_array, axis=0)/len(train_dataloader))}\n\
-            Train_F1 : {(np.sum(train_f1_array, axis=0)/len(train_dataloader))}'
+            Train_F1 : {(np.sum(train_f1_array, axis=0)/len(train_dataloader))}'''
         )
 
         # Calculate the average loss over all of the batches.
@@ -558,9 +587,9 @@ def train_and_validate(model, device, num_epochs, optimizer, scheduler, train_da
         # Measure how long this epoch took.
         training_time = format_time(time.time() - t0)
 
-        print("")
-        print("  Average training loss: {0:.2f}".format(avg_train_loss))
-        print("  Training epoch took: {:}".format(training_time))
+        debugLog("")
+        infoLog("  Average training loss: {0:.2f}".format(avg_train_loss))
+        infoLog("  Training epoch took: {:}".format(training_time))
         
         show_classification_report(train_targets, train_preds, f"Classification report. TRAINING at epoch {epoch_i+1}")
         #show_confusion_matrix(train_targets, train_preds, classes, f"Confusion matrix of training at epoch {epoch_i+1}")
@@ -571,8 +600,8 @@ def train_and_validate(model, device, num_epochs, optimizer, scheduler, train_da
         # After the completion of each training epoch, measure our performance on
         # our validation set.
 
-        print("")
-        print("Running Validation...")
+        debugLog("")
+        infoLog("Running Validation...")
 
         t0 = time.time()
 
@@ -645,17 +674,17 @@ def train_and_validate(model, device, num_epochs, optimizer, scheduler, train_da
             val_f1_array.append([f1_score(valid_targets, valid_preds, average="macro"), f1_score(valid_targets, valid_preds, average="micro")])
 
         io_avg_valid_acc = io_total_valid_acc / len(validation_dataloader)
-        print(
-                f'Epoch {epoch_i+1} : \n\
+        infoLog(
+                f'''Epoch {epoch_i+1} : \n\
                 Valid_acc : {io_avg_valid_acc}\n\
                 Valid_precision (macro, micro): {(np.sum(val_precision_array, axis=0)/len(validation_dataloader))}\n\
                 Valid_recall (macro, micro): {(np.sum(val_recall_array, axis=0)/len(validation_dataloader))}\n\
-                Valid_F1 (macro, micro): {(np.sum(val_f1_array, axis=0)/len(validation_dataloader))}'
+                Valid_F1 (macro, micro): {(np.sum(val_f1_array, axis=0)/len(validation_dataloader))}'''
             )
 
         # Report the final accuracy for this validation run.
         avg_val_accuracy = total_eval_accuracy / len(validation_dataloader)
-        print("  Accuracy: {0:.2f}".format(avg_val_accuracy))
+        infoLog("  Accuracy: {0:.2f}".format(avg_val_accuracy))
 
         # Calculate the average loss over all of the batches.
         avg_val_loss = total_eval_loss / len(validation_dataloader)
@@ -663,8 +692,8 @@ def train_and_validate(model, device, num_epochs, optimizer, scheduler, train_da
         # Measure how long the validation run took.
         validation_time = format_time(time.time() - t0)
         
-        print("  Validation Loss: {0:.2f}".format(avg_val_loss))
-        print("  Validation took: {:}".format(validation_time))
+        infoLog("  Validation Loss: {0:.2f}".format(avg_val_loss))
+        infoLog("  Validation took: {:}".format(validation_time))
         
         show_classification_report(valid_targets, valid_preds, f"Classification report. VALIDATION at epoch {epoch_i+1}")
 
@@ -693,10 +722,10 @@ def train_and_validate(model, device, num_epochs, optimizer, scheduler, train_da
             }
         )
 
-    print("")
-    print("Training complete!")
+    debugLog("")
+    infoLog("Training complete!")
 
-    print("Total training took {:} (h:mm:ss)".format(format_time(time.time()-total_t0)))
+    infoLog("Total training took {:} (h:mm:ss)".format(format_time(time.time()-total_t0)))
 
     return model, training_stats
 ##==========================================================================================================
@@ -714,7 +743,7 @@ def test_model(model, device, test_dataloader, classes):
     test_recall_array      = list()
     test_f1_array          = list()
 
-    print("Running Testing...")
+    debugLog("Running Testing...")
 
     t0 = time.time()
 
@@ -798,17 +827,17 @@ def test_model(model, device, test_dataloader, classes):
         """
         
     avg_test_acc = io_total_test_acc / len(test_dataloader)
-    print(
-        f'\n\
+    infoLog(
+        f'''\n\
         Valid_acc : {avg_test_acc}\n\
         Valid_precision (macro, micro): {(np.sum(test_precision_array, axis=0)/len(test_dataloader))}\n\
         Valid_recall (macro, micro): {(np.sum(test_recall_array, axis=0)/len(test_dataloader))}\n\
-        Valid_F1 (macro, micro): {(np.sum(test_f1_array, axis=0)/len(test_dataloader))}'
+        Valid_F1 (macro, micro): {(np.sum(test_f1_array, axis=0)/len(test_dataloader))}'''
     )
     
     # Report the final accuracy for this test run.
     avg_test_accuracy = total_test_accuracy / len(test_dataloader)
-    print("  Accuracy: {0:.2f}".format(avg_test_accuracy))
+    infoLog("  Accuracy: {0:.2f}".format(avg_test_accuracy))
 
     # Calculate the average loss over all of the batches.
     avg_test_loss = total_test_loss / len(test_dataloader)
@@ -816,8 +845,8 @@ def test_model(model, device, test_dataloader, classes):
     # Measure how long the test run took.
     test_time = format_time(time.time() - t0)
 
-    print("  Test Loss: {0:.2f}".format(avg_test_loss))
-    print("  Test took: {:}".format(test_time))
+    infoLog("  Test Loss: {0:.2f}".format(avg_test_loss))
+    infoLog("  Test took: {:}".format(test_time))
                
     show_classification_report(test_targets, test_preds, "Classification report. TEST")
     
@@ -841,7 +870,7 @@ def save_json_file_statistics_model(statistics_model, path_directory):
 Function: show_classification_report
 """
 def show_classification_report(ground_truth, prediction, title):
-    print(title + "\n", classification_report(ground_truth, prediction))
+    infoLog(f'{title} \n {classification_report(ground_truth, prediction)}')
 ##==========================================================================================================
 """
 Function: show_confusion_matrix
