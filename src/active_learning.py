@@ -442,6 +442,10 @@ def main():
             df = dict_of_segments[index]
         else:
             df = pd.concat([df, dict_of_segments[index]])
+        
+        # Read config file again - in case it is desired to store a model or change something at execution time
+        read_config_file("config.yml")
+        
         model, statistics = train(df, len(classes_dataset))
         debugLog("="*100)
         debugLog("*"*80)
