@@ -1,7 +1,7 @@
 google_drive_friendly: True
     
 general_set_up:
-    dataset_filename: "Dataset.xlsx"
+    dataset_filename: "20230112_Dataset_W_Batch1.xlsx" #"Dataset.xlsx"
     input_dir_name: "input"
     output_dir_name: "output"
     dataset_dir_name: "dataset"
@@ -10,7 +10,7 @@ general_set_up:
     
 dataset:
     index_columns_dataset: 0
-    list_columns_names: ["id_document", "id_annotation", "span", "role", "trauma", "court"]
+    list_columns_names: ["id_document", "id_annotation", "start", "span", "role", "trauma", "court", "Comments1", "Comments2"] #["id_document", "id_annotation", "span", "role", "trauma", "court"]
     col_of_interest_binary_classif: "trauma"
     col_of_interest_multi_label_classif: "role"
     col_of_reference_binary_classif: "span"
@@ -23,7 +23,7 @@ training_model:
     return_attention_mask: True
     cross_validation: False
     save_model: False
-    store_statistics: False
+    store_statistics: True
     test_model: False
     add_special_tokes: True
     max_length: 512
@@ -32,5 +32,5 @@ training_model:
     classification_task: "binary"    # [binary|multi]
 
 active_training:
-    size_splits_dataset: 5
-    classification_task: "multi"    # [binary|multi]
+    size_splits_dataset: 10
+    classification_task: "binary"    # [binary|multi]
