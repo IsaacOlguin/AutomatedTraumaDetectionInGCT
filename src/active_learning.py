@@ -249,8 +249,8 @@ Return:         Tuple - (model, metrics)
 """ 
 def train(df_dataset, num_classes):
     # Get classes of the dataset
-    classes_dataset = mlclassif_utilities.get_unique_values_from_dataset(df_dataset, "role")
-    debugLog(f"Num of different roles in the dataset is {len(classes_dataset)} which are:")
+    classes_dataset = mlclassif_utilities.get_unique_values_from_dataset(df_dataset, COL_OF_INTEREST)
+    debugLog(f"Num of different classes in the dataset is {len(classes_dataset)} which are:")
     for index, elem in enumerate(classes_dataset):
         debugLog(f"\t {index+1} - {elem}")
     
@@ -268,7 +268,7 @@ def train(df_dataset, num_classes):
 
     # Get lists of spans and classes
     list_all_spans = list(df_dataset[COL_OF_REFERENCE])
-    list_all_classes = list(df_dataset[COL_OF_INTEREST])
+    list_all_classes = [int(elem) if isfloat(elem) else elem for elem in df_dataset[COL_OF_INTEREST]]
     
     # Get & print the sentence and length of the largest one
     mlclassif_utilities.get_max_length_of_a_sentence_among_all_sentences(tokenizer, list_all_spans, False)
@@ -330,6 +330,7 @@ def train(df_dataset, num_classes):
         model, statistics_model = mlclassif_utilities.train_and_validate(model, device, EPOCHS, optimizer, scheduler, train_dataloader, val_dataloader, numeric_classes.tolist())
     
     else:
+        list_statistics = list()
         for index_cross_val in range(len(train_val_corpus_cross_validation)):
             train_dataset = mlclassif_utilities.create_tensor_dataset(train_val_corpus_cross_validation[index_cross_val][1], train_val_corpus_cross_validation[index_cross_val][2], train_val_corpus_cross_validation[index_cross_val][0])
             val_dataset = mlclassif_utilities.create_tensor_dataset(train_val_corpus_cross_validation[index_cross_val][4], train_val_corpus_cross_validation[index_cross_val][5], train_val_corpus_cross_validation[index_cross_val][3])
@@ -341,15 +342,10 @@ def train(df_dataset, num_classes):
             debugLog(f"Cross-Validation Split {(index_cross_val+1)}/{len(train_val_corpus_cross_validation)}")
             debugLog('='*50)
             model, statistics_model = mlclassif_utilities.train_and_validate(model, device, EPOCHS, optimizer, scheduler, train_dataloader, val_dataloader, numeric_classes.tolist())
-    
-    if GLB_STORE_STATISTICS_MODEL:
-        mlclassif_utilities.save_json_file_statistics_model(statistics_model, PATH_DIR_LOGS)
-    
-    if GLB_TEST_MODEL:
-        mlclassif_utilities.test_model(model, device, test_dataloader, numeric_classes.tolist())
-    
-    if GLB_SAVE_MODEL:
-        mlclassif_utilities.save_model(model, get_datetime_format() + "_model_bert_" + num_classes + "_classes", PATH_DIR_MODELS)
+            list_statistics.append(statistics_model)
+        
+        if GLB_STORE_STATISTICS_MODEL:
+            mlclassif_utilities.save_json_file_statistics_model({"cross-validation": list_statistics}, PATH_DIR_LOGS)
         
     return model, statistics_model
     
@@ -432,11 +428,14 @@ def main():
     #print(f"The number of input arguments is [{len(input_arguments)}] whose content is {input_arguments}")
     
     df_dataset = mlclassif_utilities.import_dataset_from_excel(PATH_DATASET, INDEX_COLUMNS_DATASET, LIST_NAME_COLUMNS_DATASET)
-    classes_dataset = mlclassif_utilities.get_unique_values_from_dataset(df_dataset, COL_OF_INTEREST)
+    print(f"Col of interest {COL_OF_INTEREST}")
+    classes_dataset = [int(elem) if isfloat(elem) else elem for elem in mlclassif_utilities.get_unique_values_from_dataset(df_dataset, COL_OF_INTEREST)]
+    print(f"classes_dataset {classes_dataset}")
     
     # Split the dataset for the Active Training purposes
     dict_of_segments = give_me_segments_of_df_per_class(df_dataset, GLB_SIZE_SPLITS_DATASET, COL_OF_INTEREST, COL_OF_REFERENCE)
     odlst = collections.OrderedDict(sorted(dict_of_segments.items()))
+    list_statistics = list()
     for index, df_at_index in odlst.items():
         if index == 0:
             df = dict_of_segments[index]
@@ -449,9 +448,27 @@ def main():
         model, statistics = train(df, len(classes_dataset))
         debugLog("="*100)
         debugLog("*"*80)
+        debugLog(f"Iteration: {index+1}/{GLB_SIZE_SPLITS_DATASET}")
         infoLog(statistics)
         debugLog("*"*80)
         debugLog("="*100)
+        list_statistics.append(statistics)
+        
+    if GLB_STORE_STATISTICS_MODEL:
+        mlclassif_utilities.save_json_file_statistics_model(list_statistics, PATH_DIR_LOGS)
+        
+    if GLB_TEST_MODEL:
+        mlclassif_utilities.test_model(model, device, test_dataloader, numeric_classes.tolist())
+        
+    if GLB_SAVE_MODEL:
+        mlclassif_utilities.save_model(model, f"model_active_lrn_{CLASSIFICATION_TASK}", PATH_DIR_MODELS)
+
+def isfloat(num):
+    try:
+        float(num)
+        return True
+    except ValueError:
+        return False
         
 if __name__ == "__main__":
     main()
