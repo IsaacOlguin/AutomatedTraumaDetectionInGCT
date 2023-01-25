@@ -28,7 +28,7 @@ training_model:
     batch_size: 8
     embedding_size: 512
     return_attention_mask: True
-    cross_validation: False
+    cross_validation: True
     save_model: False
     store_statistics: True
     test_model: False
