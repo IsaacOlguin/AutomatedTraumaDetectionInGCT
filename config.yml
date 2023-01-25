@@ -1,5 +1,11 @@
-google_drive_friendly: True
-    
+############################################################################   
+############################################################################
+### Description:    Configuration file of the project: "Automated Trauma
+###                 Detection in Genocide Court Transcripts"
+### Author:         Isaac Misael Olguin Nolasco
+### January 2023, TUM
+############################################################################
+############################################################################
 general_set_up:
     dataset_filename: "20230112_Dataset_W_Batch1.xlsx" #"Dataset.xlsx"
     input_dir_name: "input"
@@ -17,6 +23,7 @@ dataset:
     col_of_reference_multi_label_classif: "span"
 
 training_model:
+    model_name: "bert-base-uncased" # { "bert-base-uncased" | "nlpaueb/legal-bert-small-uncased" }
     epochs: 3
     batch_size: 8
     embedding_size: 512
