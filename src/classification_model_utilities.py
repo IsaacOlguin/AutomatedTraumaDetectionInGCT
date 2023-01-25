@@ -906,3 +906,80 @@ def plot_confusion_matrix(y_true, y_pred, classes,
                     color="white" if cm[i, j] > thresh else "black")
     fig.tight_layout()
     return ax
+##==========================================================================================================
+"""
+Function: get_df_statistics_set_up
+Parameters: 
+    @input json_statistics - 
+    @input json_setup - 
+    @output df_statistics - Dataframe without any None value
+""" 
+def get_df_statistics_set_up(json_statistics, json_setup, _method='ffill', _index_column_name="index"):  
+    df_statistics = None
+    for index, (json_obj, set_up) in enumerate(zip(json_statistics, json_setup)):
+        df_aux_stats = pd.DataFrame(json_obj)
+        df_aux_stats[_index_column_name] = index
+
+        df_aux_setup = pd.DataFrame(set_up)
+        df_aux_setup.reset_index(drop=True)
+
+        df_aux_stats = pd.concat([df_aux_stats, df_aux_setup], axis=1)
+        df_aux_stats.fillna(method=_method, inplace=True)
+
+        if index == 0:
+            df_statistics = df_aux_stats
+        else:
+            df_statistics = pd.concat([df_statistics, df_aux_stats])
+    df_statistics.reset_index(drop=True)
+    df_statistics.set_index(_index_column_name, inplace=True)
+    return df_statistics.reset_index()
+
+##==========================================================================================================
+"""
+Function: draw_statistics_spec_epoch
+Parameters: 
+    @input df - 
+    @input columns_of_interest - 
+    @input epoch - 
+    @input _index - 
+    @input size_x - 
+    @input size_y - 
+    @input _dpi - 
+    @input _loc - { "best" | "right" | "center" | 
+                    "upper right" | "upper left" | 
+                    "lower left" | "lower right" | 
+                    "center left" | "center right" | 
+                    "lower center" | "upper center" }
+    @input withLabelsInPlot - 
+    @input _title - 
+    @input showPlot - 
+    @input showScatter - 
+    @output 
+""" 
+def draw_statistics_spec_epoch(df, columns_of_interest, epoch=None, _index=None, size_x=15, size_y=10, _dpi=80, _loc="best",
+                               withLabelsInPlot=False, _title="", showPlot=True, showScatter=True):
+  fig = plt.figure(figsize=(size_x, size_y), dpi=_dpi)
+  for col in columns_of_interest:
+    if epoch != None:
+      df_aux = df[df["epoch"] == epoch][col]
+    elif _index != None:
+      df_aux = df[df["index"] == _index][col]
+    else:
+      print("ERROR - no epoch or index given")
+      return None
+    
+    if showPlot == False and showScatter == False:
+      plt.plot(np.arange(len(df_aux)), df_aux)
+      plt.scatter(np.arange(len(df_aux)), df_aux)
+    elif showPlot == False:
+      plt.scatter(np.arange(len(df_aux)), df_aux)
+    elif showScatter == False:
+      plt.plot(np.arange(len(df_aux)), df_aux)
+    else:
+      plt.plot(np.arange(len(df_aux)), df_aux)
+
+    if withLabelsInPlot == True:
+      for x, y in zip(np.arange(len(df_aux)), list(df_aux)):
+        plt.text(x, y, str(round(y, 4)))
+  plt.title(_title)
+  plt.legend(columns_of_interest, loc=_loc)

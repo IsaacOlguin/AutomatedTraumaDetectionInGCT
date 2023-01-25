@@ -35,6 +35,7 @@ CLASSIFICATION_TASK = ""
 COL_OF_REFERENCE = ""
 GLB_RUN_IN_GPU = True
 LOGGER = None
+GLB_MODEL_NAME = ""
         
 ###################################################################################################
 ###################################################################################################
@@ -57,7 +58,7 @@ import logging
 from sklearn.exceptions import UndefinedMetricWarning
 import warnings
 # Custom code
-import multi_label_classif_model_utilities as mlclassif_utilities
+import classification_model_utilities as mlclassif_utilities
 
 
 ###################################################################################################
@@ -220,6 +221,9 @@ def read_config_file(config_file_path):
         elif CLASSIFICATION_TASK == "multi":
             COL_OF_INTEREST = cfg["dataset"]["col_of_interest_multi_label_classif"]
             COL_OF_REFERENCE = cfg["dataset"]["col_of_reference_multi_label_classif"]
+
+        global GLB_MODEL_NAME
+        GLB_MODEL_NAME = cfg["training_model"]["model_name"]
 
 """
 Function:       read_input_arguments()
@@ -456,9 +460,11 @@ def main():
         
     if GLB_STORE_STATISTICS_MODEL:
         mlclassif_utilities.save_json_file_statistics_model(list_statistics, PATH_DIR_LOGS)
-        
+
+    """
     if GLB_TEST_MODEL:
         mlclassif_utilities.test_model(model, device, test_dataloader, numeric_classes.tolist())
+    """
         
     if GLB_SAVE_MODEL:
         mlclassif_utilities.save_model(model, f"model_active_lrn_{CLASSIFICATION_TASK}", PATH_DIR_MODELS)
