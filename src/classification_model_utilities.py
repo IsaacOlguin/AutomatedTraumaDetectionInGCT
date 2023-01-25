@@ -35,6 +35,8 @@ import time
 import os
 from os.path import join
 import json
+#Custom
+import general_utilities as gral_utilities
 
 
 ###############################################################
@@ -43,6 +45,8 @@ GLB_BERT_MODEL_ID = "Bert"
 GLB_BERT_BASE_UNCASED_MODEL_NAME = "bert-base-uncased"#"nlpaueb/legal-bert-small-uncased"
 GLB_PYTORCH_TENSOR_TYPE = "pt"
 GLB_DEVICE_CPU = "cpu"
+GLB_FILE_READ_MODE = "r"
+GLB_FILE_WRITE_MODE = "w"
 LOGGER = None
 
 def setLogger(logger):
@@ -428,12 +432,12 @@ def train_and_validate(model, device, num_epochs, optimizer, scheduler, train_da
     # https://github.com/huggingface/transformers/blob/5bfcd0485ece086ebcbed2d008813037968a9e58/examples/run_glue.py#L128
 
     # Set the seed value all over the place to make this reproducible.
-    seed_val = 42
+    #seed_val = 42
 
-    random.seed(seed_val)
-    np.random.seed(seed_val)
-    torch.manual_seed(seed_val)
-    torch.cuda.manual_seed_all(seed_val)
+    #random.seed(seed_val)
+    #np.random.seed(seed_val)
+    #torch.manual_seed(seed_val)
+    #torch.cuda.manual_seed_all(seed_val)
 
     # We'll store a number of quantities such as training and validation loss, 
     # validation accuracy, and timings.
@@ -857,10 +861,14 @@ def save_model(model, model_name, path):
 """
 Function: save_json_file_statistics_model
 """
-def save_json_file_statistics_model(statistics_model, path_directory):
-    filename = datetime.datetime.now().strftime("%Y%m%d_%H%M%S") + "_statistics_model.json"
+def save_json_file_statistics_model(statistics_model, path_directory, pattern=None):
+    filename = ""
+    if pattern == None:
+        filename = datetime.datetime.now().strftime("%Y%m%d_%H%M%S") + "_statistics_model.json"
+    else:
+        filename = datetime.datetime.now().strftime("%Y%m%d_%H%M%S") + "_" + pattern +  "_statistics_model.json"
     
-    json_file = open(join(path_directory, filename), "w")
+    json_file = open(join(path_directory, filename), GLB_FILE_WRITE_MODE)
     json_file.write(json.dumps(statistics_model, indent=4))
     json_file.close()
     
@@ -983,3 +991,188 @@ def draw_statistics_spec_epoch(df, columns_of_interest, epoch=None, _index=None,
         plt.text(x, y, str(round(y, 4)))
   plt.title(_title)
   plt.legend(columns_of_interest, loc=_loc)
+
+##==========================================================================================================
+"""
+Function: exec_train
+Description: Execution of training process for classification tasks
+Parameters: 
+"""
+def exec_train(df_dataset, column_of_interest, col_of_reference, bert_model_id, bert_model_name,
+            batch_size=8,
+            epochs=3,
+            add_special_tokens=True, 
+            max_length_sentence=512, 
+            padding_to_max_length=True, 
+            return_attention_mask=True, 
+            tensor_type='pt', 
+            cross_validation=False, 
+            run_in_gpu=True, 
+            optimizer=None, 
+            scheduler=None,
+            store_statistics_model=True,
+            path_dir_logs="logs/"
+        ):
+
+    # Get classes of the dataset
+    classes_dataset = get_unique_values_from_dataset(df_dataset, column_of_interest)
+    num_classes = len(classes_dataset)
+
+    debugLog(f"Num of different classes in the dataset is {num_classes} which are:")
+    for index, elem in enumerate(classes_dataset):
+        debugLog(f"\t {index+1} - {elem}")
+
+    # Define device to be used
+    device = get_gpu_device_if_exists()
+    debugLog(f"\n\n==> Selected device is '{device}' <==")
+    
+    #If no parameters are sent, default values are considered. 
+    #    IDModel:      Bert
+    #    Model namel:  bert-base-uncased
+    #    Do uncase:    True
+
+    # Get tokenizer
+    tokenizer = get_tokenizer() 
+
+    # Get lists of spans and classes
+    list_all_spans = list(df_dataset[col_of_reference])
+    list_all_classes = [int(elem) if gral_utilities.isfloat(elem) else elem for elem in df_dataset[column_of_interest]]
+    
+    # Get & print the sentence and length of the largest one
+    get_max_length_of_a_sentence_among_all_sentences(tokenizer, list_all_spans, False)
+
+    # If _return_attention_mask, a tuple of two lists is given (tensor_of_inputs, tensor_of_attention_masks)
+    all_spans_tokenized = get_all_spans_tokenized(
+        bert_model_id, 
+        tokenizer,
+        list_all_spans,
+        _add_special_tokens = add_special_tokens, 
+        _max_length = max_length_sentence,
+        _pad_to_max_length = padding_to_max_length,
+        _return_attention_mask = return_attention_mask, 
+        type_tensors = tensor_type
+    )
+
+    input_ids = None
+    attention_masks = None
+    
+    if return_attention_mask:
+        input_ids = convert_list_into_pytorch_tensor(all_spans_tokenized[0])
+        attention_masks = convert_list_into_pytorch_tensor(all_spans_tokenized[1])
+    else:
+        input_ids = convert_list_into_pytorch_tensor(all_spans_tokenized)
+    
+    numeric_classes = convert_list_span_classes_into_numeric_values(classes_dataset, list_all_classes)
+    numeric_classes = convert_list_labels_into_pytorch_tensor(numeric_classes)
+    
+    ### Split dataset
+    if not cross_validation:
+        train_labels_corpus, train_input_ids, train_attention_masks, val_labels_corpus, val_input_ids, val_attention_masks, test_labels_corpus, test_input_ids, test_attention_masks = split_dataset_train_val_test(numeric_classes, input_ids, attention_masks)
+    else:
+        ### k-Fold
+        train_val_corpus_cross_validation, test_corpus_cross_validation = split_dataset_train_val_test_k_fold(numeric_classes, input_ids, attention_masks, 0.1)
+        
+    ### Create model
+    model = create_model(
+        bert_model_id,
+        bert_model_name,
+        num_classes,
+        run_in_gpu 
+    )
+    
+    # Define optimizer
+    if optimizer == None:
+        optimizer = get_optimizer(model)
+    
+    # Define scheduler
+    if scheduler == None:
+        scheduler = get_scheduler(optimizer)
+
+    if not cross_validation:
+        train_dataset = create_tensor_dataset(train_input_ids, train_attention_masks, train_labels_corpus)
+        val_dataset = create_tensor_dataset(val_input_ids, val_attention_masks, val_labels_corpus)
+        test_dataset = create_tensor_dataset(test_input_ids, test_attention_masks, test_labels_corpus)
+        
+        train_dataloader = create_dataloader(train_dataset, batch_size)
+        val_dataloader = create_dataloader(val_dataset, batch_size)
+        test_dataloader = create_dataloader(test_dataset, batch_size)
+        
+        model, statistics_model = train_and_validate(model, device, epochs, optimizer, scheduler, train_dataloader, val_dataloader, numeric_classes.tolist())
+    
+    else:
+        list_statistics = list()
+        for index_cross_val in range(len(train_val_corpus_cross_validation)):
+            train_dataset = create_tensor_dataset(train_val_corpus_cross_validation[index_cross_val][1], train_val_corpus_cross_validation[index_cross_val][2], train_val_corpus_cross_validation[index_cross_val][0])
+            val_dataset = create_tensor_dataset(train_val_corpus_cross_validation[index_cross_val][4], train_val_corpus_cross_validation[index_cross_val][5], train_val_corpus_cross_validation[index_cross_val][3])
+    
+            train_dataloader = create_dataloader(train_dataset, batch_size)
+            val_dataloader = create_dataloader(val_dataset, batch_size)
+    
+            debugLog('='*50)
+            debugLog(f"Cross-Validation Split {(index_cross_val+1)}/{len(train_val_corpus_cross_validation)}")
+            debugLog('='*50)
+            model, statistics_model = train_and_validate(model, device, epochs, optimizer, scheduler, train_dataloader, val_dataloader, numeric_classes.tolist())
+            list_statistics.append(statistics_model)
+        
+        if store_statistics_model:
+            save_json_file_statistics_model({"cross-validation": list_statistics}, path_dir_logs)
+
+        statistics_model = list_statistics
+        
+    return model, statistics_model
+
+##==========================================================================================================
+"""
+Function: give_me_segments_of_df_per_class
+Description: Execution of training process for classification tasks
+Parameters: 
+"""
+def give_me_segments_of_df_per_class(df, number_of_splits, column_of_interest, column_of_reference):
+    dict_of_segments = {}
+    invalidSplit = False
+    number_of_classes = df[column_of_interest].nunique()
+    list_of_classes = df[column_of_interest].unique()
+    
+    counts = df[column_of_interest].value_counts()
+    normalized = round(df[column_of_interest].value_counts(normalize=True), 4)
+    percentages = normalized*100
+    
+    df_stats_dataset = pd.DataFrame({'counts': counts, 'normalized': normalized, 'percentages': percentages}).reset_index()
+    
+    # Validation
+    for i, row in df_stats_dataset.iterrows():
+        if row["counts"] < number_of_splits:
+            errorLog(f"ERROR - Dataset[{row['index']}] cannot be split into the given number of splits")
+            invalidSplit = True
+    
+    if invalidSplit:
+        return None
+    else:
+        # Get sizes of segments and put them into a list
+        list_of_size_segments = (df_stats_dataset["counts"]-(df_stats_dataset["counts"]%number_of_splits)) / number_of_splits
+        
+        """
+        print("*"*100)
+        print(df_stats_dataset)
+        print("*"*100)
+        """
+        
+        # Initialize dict_of_segments
+        for i_range in range(0, number_of_splits):
+            dict_of_segments[i_range] = pd.DataFrame()
+        
+        # Add segments to a list of segments
+        for index_class, (size, type_id) in enumerate(zip(list_of_size_segments, df_stats_dataset["index"])):
+            size = int(size)
+            #print(index_class, "#"*100, size)
+            for i_range in range(0, number_of_splits):
+                #print(i_range, "*"*50, index_class, type_id, "Segment", i_range, "[", i_range*size, ":", i_range*size+size, "]")
+                if index_class == 0:
+                    dict_of_segments[i_range] = df[df[column_of_interest] == type_id][i_range*size:i_range*size+size]
+                else:
+                    if (i_range+1) == number_of_splits:
+                        dict_of_segments[i_range] = pd.concat([dict_of_segments[i_range], df[df[column_of_interest] == type_id][i_range*size:]])
+                    else:
+                        dict_of_segments[i_range] = pd.concat([dict_of_segments[i_range], df[df[column_of_interest] == type_id][i_range*size:i_range*size+size]])
+    
+    return dict_of_segments

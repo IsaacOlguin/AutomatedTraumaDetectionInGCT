@@ -1,0 +1,244 @@
+"""
+###################################################################################################
+###################################################################################################
+@author:    Isaac Misael Olguín Nolasco
+@project:   Automated Trauma Detection in Genocide Court Transcripts (IDP - TUM Informatics)
+@file:      binary_classification.py
+@descript:  The following implementation corresponds to the binary classification desired to 
+            split sentences of witnesses that show violent content or not.
+###################################################################################################
+###################################################################################################
+"""
+
+###################################################################################################
+###################################################################################################
+### Definition of globals
+###################################################################################################
+###################################################################################################
+GLB_DEFINE_PATH_PROJECT = False
+LOGGER = None
+PATH_PROJECT = ""
+READ_FILE_MODE = "r"
+PATH_DATASET = ""
+PATH_DIR_LOGS = "logs"
+PATH_DIR_MODELS = ""
+INDEX_COLUMNS_DATASET = ""
+LIST_NAME_COLUMNS_DATASET = ""
+GLB_RETURN_ATTENTION_MASK = ""
+GLB_ADD_SPECIAL_TOKENS = True
+GLB_MAX_LENGTH_SENTENCE = 512
+GLB_PADDING_TO_MAX_LENGTH = True
+GLB_CROSS_VALIDATION = ""
+GLB_SAVE_MODEL = ""
+GLB_STORE_STATISTICS_MODEL = ""
+GLB_TEST_MODEL = ""
+GLB_SIZE_SPLITS_DATASET = 1
+COL_OF_INTEREST = ""
+CLASSIFICATION_TASK = ""
+COL_OF_REFERENCE = ""
+GLB_RUN_IN_GPU = True
+GLB_MODEL_NAME = ""
+
+###################################################################################################
+###################################################################################################
+### Imports
+###################################################################################################
+###################################################################################################
+# Required packages
+import yaml
+import pandas as pd
+import torch
+import numpy as np
+import matplotlib.pyplot as plt
+import json
+import os
+from os.path import join
+import sys
+import datetime as dt
+import collections
+import logging
+from sklearn.exceptions import UndefinedMetricWarning
+import warnings
+# Custom code
+import classification_model_utilities as mlclassif_utilities
+import general_utilities as gral_utilities
+
+###################################################################################################
+###################################################################################################
+### Logging
+###################################################################################################
+###################################################################################################    
+def infoLog(message):
+    if LOGGER != None:
+        LOGGER.info(message)
+    else: 
+        print(f"INFO  {message}")
+
+def debugLog(message):
+    if LOGGER != None:
+        LOGGER.debug(message)
+    else: 
+        print(f"DEBUG {message}")
+    
+def errorLog(message):
+    if LOGGER != None:
+        LOGGER.error(message)
+    else: 
+        print(f"ERROR {message}")
+    
+def warnLog(message):
+    if LOGGER != None:
+        LOGGER.warn(message)
+    else: 
+        print(f"WARN  {message}")
+
+###################################################################################################
+###################################################################################################
+### Control for warnings
+###################################################################################################
+###################################################################################################
+def warn(*args, **kwargs):
+    pass
+warnings.warn = warn
+
+###################################################################################################
+###################################################################################################
+### Functions for set-up
+###################################################################################################
+###################################################################################################
+
+"""
+Function:       get_projects_directory_path()
+Description:    Defines the path of the project's directory
+Return:         None (path is stored in a global variable)
+"""
+def get_projects_directory_path():
+    if GLB_DEFINE_PATH_PROJECT:
+        PATH_PROJECT = "/content/drive/MyDrive/Colab Notebooks/AutomatedTraumaDetectionInGCT"
+    else:
+        PATH_PROJECT = os.getcwd()
+
+"""
+Function:       read_config_file(config_file_path)
+Description:    Reads the configuration file (yaml file)
+Return:         None (configuration is stored in global variables)
+"""
+def read_config_file(config_file_path):
+    if config_file_path == None:
+        infoLog("Path of the configuration file is not defined. It's considered a default value ['config.yml']")
+        config_file_path = "config.yml"
+    
+    with open(join(PATH_PROJECT, config_file_path), READ_FILE_MODE) as ymlfile:
+        cfg = yaml.safe_load(ymlfile)
+        debugLog(cfg)
+    
+        global PATH_DATASET
+        PATH_DATASET = join( PATH_PROJECT, cfg["general_set_up"]["input_dir_name"], cfg["general_set_up"]["dataset_dir_name"], cfg["general_set_up"]["dataset_filename"] )
+        
+        global PATH_DIR_LOGS
+        PATH_DIR_LOGS = join( PATH_PROJECT, cfg["general_set_up"]["logs_dir_name"] )
+        
+        global PATH_DIR_MODELS
+        PATH_DIR_MODELS = join( PATH_PROJECT, cfg["general_set_up"]["models_dir_name"] )
+        
+        global INDEX_COLUMNS_DATASET
+        INDEX_COLUMNS_DATASET = cfg["dataset"]["index_columns_dataset"]
+        
+        global LIST_NAME_COLUMNS_DATASET
+        LIST_NAME_COLUMNS_DATASET = cfg["dataset"]["list_columns_names"]
+        
+        global GLB_RETURN_ATTENTION_MASK
+        GLB_RETURN_ATTENTION_MASK = cfg["training_model"]["return_attention_mask"]
+        
+        global GLB_CROSS_VALIDATION
+        GLB_CROSS_VALIDATION = cfg["training_model"]["cross_validation"]
+        
+        global GLB_SAVE_MODEL
+        GLB_SAVE_MODEL = cfg["training_model"]["save_model"]
+        
+        global GLB_STORE_STATISTICS_MODEL
+        GLB_STORE_STATISTICS_MODEL = cfg["training_model"]["store_statistics"]
+        
+        global GLB_TEST_MODEL
+        GLB_TEST_MODEL = cfg["training_model"]["test_model"]
+        
+        # Globals for the model
+        global EPOCHS
+        EPOCHS = cfg["training_model"]["epochs"]
+        
+        global EMBEDDING_SIZE
+        EMBEDDING_SIZE = cfg["training_model"]["embedding_size"]
+        
+        global BATCH_SIZE
+        BATCH_SIZE = cfg["training_model"]["batch_size"]
+        
+        global GLB_ADD_SPECIAL_TOKENS
+        GLB_ADD_SPECIAL_TOKENS = cfg["training_model"]["add_special_tokes"]
+        
+        global GLB_MAX_LENGTH_SENTENCE
+        GLB_MAX_LENGTH_SENTENCE = cfg["training_model"]["max_length"]
+        
+        global GLB_PADDING_TO_MAX_LENGTH
+        GLB_PADDING_TO_MAX_LENGTH = cfg["training_model"]["pad_to_max_length"]
+        
+        global GLB_RUN_IN_GPU
+        GLB_RUN_IN_GPU = cfg["training_model"]["run_in_gpu"]
+        
+        # Active training
+        global GLB_SIZE_SPLITS_DATASET
+        GLB_SIZE_SPLITS_DATASET = cfg["active_training"]["size_splits_dataset"]
+        
+        global CLASSIFICATION_TASK
+        global COL_OF_INTEREST
+        global COL_OF_REFERENCE
+        CLASSIFICATION_TASK = cfg["active_training"]["classification_task"]
+        if CLASSIFICATION_TASK == "binary":
+            COL_OF_INTEREST = cfg["dataset"]["col_of_interest_binary_classif"]
+            COL_OF_REFERENCE = cfg["dataset"]["col_of_reference_binary_classif"]
+        elif CLASSIFICATION_TASK == "multi":
+            COL_OF_INTEREST = cfg["dataset"]["col_of_interest_multi_label_classif"]
+            COL_OF_REFERENCE = cfg["dataset"]["col_of_reference_multi_label_classif"]
+
+        global GLB_MODEL_NAME
+        GLB_MODEL_NAME = cfg["training_model"]["model_name"]
+
+"""
+Function:       read_input_arguments()
+Description:    Reads the arguments that user gives when execute this file
+Return:         List - of input arguments
+"""  
+def read_input_arguments():
+    return sys.argv
+
+###################################################################################################
+###################################################################################################
+### Main
+###################################################################################################
+###################################################################################################
+
+def main():
+    global LOGGER
+    LOGGER = gral_utilities.configure_logger(_datetime=gral_utilities.get_datetime_format(), pattern="binaryClassification")
+    mlclassif_utilities.setLogger(LOGGER)
+    
+    list_statistics = list()
+    
+    # Get project's path
+    debugLog("Reading directory path")
+    get_projects_directory_path()
+    # Read configuration file
+    read_config_file("config.yml")
+
+    # Reading dataset
+    df_dataset = mlclassif_utilities.import_dataset_from_excel(PATH_DATASET, INDEX_COLUMNS_DATASET, LIST_NAME_COLUMNS_DATASET)
+    debugLog(f"Col of interest <<{COL_OF_INTEREST}>>")
+    classes_dataset = [int(elem) if gral_utilities.isfloat(elem) else elem for elem in mlclassif_utilities.get_unique_values_from_dataset(df_dataset, COL_OF_INTEREST)]
+    debugLog(f"classes_dataset <<{classes_dataset}>>")
+
+    model, statistics = mlclassif_utilities.exec_train(df_dataset, COL_OF_INTEREST, COL_OF_REFERENCE, mlclassif_utilities.GLB_BERT_MODEL_ID, GLB_MODEL_NAME)
+
+    infoLog("From binary classification we present the following statistics: {statistics}")
+
+
+if __name__ == "__main__":
+    main()
