@@ -36,7 +36,10 @@ import os
 from os.path import join
 import json
 #Custom
-import general_utilities as gral_utilities
+try:
+    import general_utilities as gral_utilities
+except:
+    import src.general_utilities as gral_utilities
 
 
 ###############################################################
