@@ -22,6 +22,10 @@ dataset:
     col_of_reference_binary_classif: "span"
     col_of_reference_multi_label_classif: "span"
 
+models: 
+    bert: ["bert-base-uncased", "nlpaueb/legal-bert-base-uncased"]
+    other: ["snowood1/ConfliBERT-scr-uncased", "GroNLP/hateBERT"]
+
 training_model:
     model_name: "bert-base-uncased" # { "bert-base-uncased" | "nlpaueb/legal-bert-small-uncased" }
     epochs: 3
