@@ -1056,7 +1056,7 @@ def exec_train(df_dataset, column_of_interest, col_of_reference, bert_model_id, 
     #    Do uncase:    True
 
     # Get tokenizer
-    tokenizer = get_tokenizer() 
+    tokenizer = get_tokenizer(bert_model_id, bert_model_name) 
 
     # Get lists of spans and classes
     list_all_spans = list(df_dataset[col_of_reference])
@@ -1067,7 +1067,6 @@ def exec_train(df_dataset, column_of_interest, col_of_reference, bert_model_id, 
 
     # If _return_attention_mask, a tuple of two lists is given (tensor_of_inputs, tensor_of_attention_masks)
     all_spans_tokenized = get_all_spans_tokenized(
-        bert_model_id, 
         tokenizer,
         list_all_spans,
         _add_special_tokens = add_special_tokens, 
