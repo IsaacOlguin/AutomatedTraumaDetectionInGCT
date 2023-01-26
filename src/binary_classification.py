@@ -127,80 +127,81 @@ def read_config_file(config_file_path):
     if config_file_path == None:
         infoLog("Path of the configuration file is not defined. It's considered a default value ['config.yml']")
         config_file_path = "config.yml"
-    
-    with open(join(PATH_PROJECT, config_file_path), READ_FILE_MODE) as ymlfile:
-        cfg = yaml.safe_load(ymlfile)
-        debugLog(cfg)
-    
-        global PATH_DATASET
-        PATH_DATASET = join( PATH_PROJECT, cfg["general_set_up"]["input_dir_name"], cfg["general_set_up"]["dataset_dir_name"], cfg["general_set_up"]["dataset_filename"] )
-        
-        global PATH_DIR_LOGS
-        PATH_DIR_LOGS = join( PATH_PROJECT, cfg["general_set_up"]["logs_dir_name"] )
-        
-        global PATH_DIR_MODELS
-        PATH_DIR_MODELS = join( PATH_PROJECT, cfg["general_set_up"]["models_dir_name"] )
-        
-        global INDEX_COLUMNS_DATASET
-        INDEX_COLUMNS_DATASET = cfg["dataset"]["index_columns_dataset"]
-        
-        global LIST_NAME_COLUMNS_DATASET
-        LIST_NAME_COLUMNS_DATASET = cfg["dataset"]["list_columns_names"]
-        
-        global GLB_RETURN_ATTENTION_MASK
-        GLB_RETURN_ATTENTION_MASK = cfg["training_model"]["return_attention_mask"]
-        
-        global GLB_CROSS_VALIDATION
-        GLB_CROSS_VALIDATION = cfg["training_model"]["cross_validation"]
-        
-        global GLB_SAVE_MODEL
-        GLB_SAVE_MODEL = cfg["training_model"]["save_model"]
-        
-        global GLB_STORE_STATISTICS_MODEL
-        GLB_STORE_STATISTICS_MODEL = cfg["training_model"]["store_statistics"]
-        
-        global GLB_TEST_MODEL
-        GLB_TEST_MODEL = cfg["training_model"]["test_model"]
-        
-        # Globals for the model
-        global EPOCHS
-        EPOCHS = cfg["training_model"]["epochs"]
-        
-        global EMBEDDING_SIZE
-        EMBEDDING_SIZE = cfg["training_model"]["embedding_size"]
-        
-        global BATCH_SIZE
-        BATCH_SIZE = cfg["training_model"]["batch_size"]
-        
-        global GLB_ADD_SPECIAL_TOKENS
-        GLB_ADD_SPECIAL_TOKENS = cfg["training_model"]["add_special_tokes"]
-        
-        global GLB_MAX_LENGTH_SENTENCE
-        GLB_MAX_LENGTH_SENTENCE = cfg["training_model"]["max_length"]
-        
-        global GLB_PADDING_TO_MAX_LENGTH
-        GLB_PADDING_TO_MAX_LENGTH = cfg["training_model"]["pad_to_max_length"]
-        
-        global GLB_RUN_IN_GPU
-        GLB_RUN_IN_GPU = cfg["training_model"]["run_in_gpu"]
-        
-        # Active training
-        global GLB_SIZE_SPLITS_DATASET
-        GLB_SIZE_SPLITS_DATASET = cfg["active_training"]["size_splits_dataset"]
-        
-        global CLASSIFICATION_TASK
-        global COL_OF_INTEREST
-        global COL_OF_REFERENCE
-        CLASSIFICATION_TASK = cfg["active_training"]["classification_task"]
-        if CLASSIFICATION_TASK == "binary":
-            COL_OF_INTEREST = cfg["dataset"]["col_of_interest_binary_classif"]
-            COL_OF_REFERENCE = cfg["dataset"]["col_of_reference_binary_classif"]
-        elif CLASSIFICATION_TASK == "multi":
-            COL_OF_INTEREST = cfg["dataset"]["col_of_interest_multi_label_classif"]
-            COL_OF_REFERENCE = cfg["dataset"]["col_of_reference_multi_label_classif"]
 
-        global GLB_MODEL_NAME
-        GLB_MODEL_NAME = cfg["training_model"]["model_name"]
+    cfg = gral_utilities.read_config_file(join(PATH_PROJECT, config_file_path))
+    debugLog(cfg)
+
+    global PATH_DATASET
+    PATH_DATASET = join( PATH_PROJECT, cfg["general_set_up"]["input_dir_name"], cfg["general_set_up"]["dataset_dir_name"], cfg["general_set_up"]["dataset_filename"] )
+    
+    global PATH_DIR_LOGS
+    PATH_DIR_LOGS = join( PATH_PROJECT, cfg["general_set_up"]["logs_dir_name"] )
+    
+    global PATH_DIR_MODELS
+    PATH_DIR_MODELS = join( PATH_PROJECT, cfg["general_set_up"]["models_dir_name"] )
+    
+    global INDEX_COLUMNS_DATASET
+    INDEX_COLUMNS_DATASET = cfg["dataset"]["index_columns_dataset"]
+    
+    global LIST_NAME_COLUMNS_DATASET
+    LIST_NAME_COLUMNS_DATASET = cfg["dataset"]["list_columns_names"]
+    
+    global GLB_RETURN_ATTENTION_MASK
+    GLB_RETURN_ATTENTION_MASK = cfg["training_model"]["return_attention_mask"]
+    
+    global GLB_CROSS_VALIDATION
+    GLB_CROSS_VALIDATION = cfg["training_model"]["cross_validation"]
+    
+    global GLB_SAVE_MODEL
+    GLB_SAVE_MODEL = cfg["training_model"]["save_model"]
+    
+    global GLB_STORE_STATISTICS_MODEL
+    GLB_STORE_STATISTICS_MODEL = cfg["training_model"]["store_statistics"]
+    
+    global GLB_TEST_MODEL
+    GLB_TEST_MODEL = cfg["training_model"]["test_model"]
+    
+    # Globals for the model
+    global EPOCHS
+    EPOCHS = cfg["training_model"]["epochs"]
+    
+    global EMBEDDING_SIZE
+    EMBEDDING_SIZE = cfg["training_model"]["embedding_size"]
+    
+    global BATCH_SIZE
+    BATCH_SIZE = cfg["training_model"]["batch_size"]
+    
+    global GLB_ADD_SPECIAL_TOKENS
+    GLB_ADD_SPECIAL_TOKENS = cfg["training_model"]["add_special_tokes"]
+    
+    global GLB_MAX_LENGTH_SENTENCE
+    GLB_MAX_LENGTH_SENTENCE = cfg["training_model"]["max_length"]
+    
+    global GLB_PADDING_TO_MAX_LENGTH
+    GLB_PADDING_TO_MAX_LENGTH = cfg["training_model"]["pad_to_max_length"]
+    
+    global GLB_RUN_IN_GPU
+    GLB_RUN_IN_GPU = cfg["training_model"]["run_in_gpu"]
+    
+    # Active training
+    global GLB_SIZE_SPLITS_DATASET
+    GLB_SIZE_SPLITS_DATASET = cfg["active_training"]["size_splits_dataset"]
+    
+    global CLASSIFICATION_TASK
+    global COL_OF_INTEREST
+    global COL_OF_REFERENCE
+    CLASSIFICATION_TASK = cfg["active_training"]["classification_task"]
+    if CLASSIFICATION_TASK == "binary":
+        COL_OF_INTEREST = cfg["dataset"]["col_of_interest_binary_classif"]
+        COL_OF_REFERENCE = cfg["dataset"]["col_of_reference_binary_classif"]
+    elif CLASSIFICATION_TASK == "multi":
+        COL_OF_INTEREST = cfg["dataset"]["col_of_interest_multi_label_classif"]
+        COL_OF_REFERENCE = cfg["dataset"]["col_of_reference_multi_label_classif"]
+
+    global GLB_MODEL_NAME
+    GLB_MODEL_NAME = cfg["training_model"]["model_name"]
+
+    return cfg
 
 """
 Function:       read_input_arguments()
@@ -227,7 +228,7 @@ def main():
     debugLog("Reading directory path")
     get_projects_directory_path()
     # Read configuration file
-    read_config_file("config.yml")
+    cfg = read_config_file("config.yml")
 
     # Reading dataset
     df_dataset = mlclassif_utilities.import_dataset_from_excel(PATH_DATASET, INDEX_COLUMNS_DATASET, LIST_NAME_COLUMNS_DATASET)
@@ -235,9 +236,14 @@ def main():
     classes_dataset = [int(elem) if gral_utilities.isfloat(elem) else elem for elem in mlclassif_utilities.get_unique_values_from_dataset(df_dataset, COL_OF_INTEREST)]
     debugLog(f"classes_dataset <<{classes_dataset}>>")
 
-    model, statistics = mlclassif_utilities.exec_train(df_dataset, COL_OF_INTEREST, COL_OF_REFERENCE, mlclassif_utilities.GLB_BERT_MODEL_ID, GLB_MODEL_NAME)
+    GLB_ID_MODEL = mlclassif_utilities.get_id_model(cfg, GLB_MODEL_NAME)
+    if GLB_ID_MODEL == None or GLB_ID_MODEL == "":
+        infoLog("ID of the model was not found. Execution is finished.")
+        return
 
-    infoLog("From binary classification we present the following statistics: {statistics}")
+    model, statistics = mlclassif_utilities.exec_train(df_dataset, COL_OF_INTEREST, COL_OF_REFERENCE, GLB_ID_MODEL, GLB_MODEL_NAME)
+
+    infoLog(f"From binary classification we present the following statistics: {statistics}")
 
 
 if __name__ == "__main__":

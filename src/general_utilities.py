@@ -2,6 +2,7 @@ import datetime as dt
 import logging
 import os
 from os.path import join
+import yaml
 
 ##==========================================================================================================
 """
@@ -52,3 +53,13 @@ def configure_logger(levelStdout=logging.DEBUG, levelFile=logging.DEBUG, path_pr
     #LOGGER.addHandler(stdout_handler)
 
     return LOGGER
+
+def read_config_file(config_file_path):
+    if config_file_path == None:
+        config_file_path = "config.yml"
+    
+    with open(join(config_file_path), "r") as ymlfile:
+        cfg = yaml.safe_load(ymlfile)
+        return cfg
+
+    return None

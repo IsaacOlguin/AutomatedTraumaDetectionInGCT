@@ -20,7 +20,8 @@ from torch.utils.data import TensorDataset, random_split
 from torch.utils.data import DataLoader, RandomSampler
 from torch.optim.lr_scheduler import CosineAnnealingLR
 #Transformers
-from transformers import BertForSequenceClassification, AdamW, BertConfig
+from transformers import BertForSequenceClassification, AdamW, BertTokenizer #, BertConfig
+from transformers import AutoTokenizer, AutoModelForMaskedLM
 # sklearn
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import f1_score, precision_score, recall_score, accuracy_score
@@ -35,6 +36,7 @@ import time
 import os
 from os.path import join
 import json
+import traceback
 #Custom
 try:
     import general_utilities as gral_utilities
@@ -44,8 +46,8 @@ except:
 
 ###############################################################
 ## GLOBALS
-GLB_BERT_MODEL_ID = "Bert"
-GLB_BERT_BASE_UNCASED_MODEL_NAME = "bert-base-uncased"#"nlpaueb/legal-bert-small-uncased"
+GLB_BERT_MODEL_ID_DEFAULT = "bert"
+GLB_BERT_BASE_UNCASED_MODEL_NAME_DEFAULT = "bert-base-uncased"#"nlpaueb/legal-bert-small-uncased"
 GLB_PYTORCH_TENSOR_TYPE = "pt"
 GLB_DEVICE_CPU = "cpu"
 GLB_FILE_READ_MODE = "r"
@@ -148,14 +150,23 @@ def get_max_length_of_a_sentence_among_all_sentences(tokenizer, list_all_sentenc
 """
 Function: get_tokenizer given a model
 """
-def get_tokenizer(model_id=GLB_BERT_MODEL_ID, model_name = GLB_BERT_BASE_UNCASED_MODEL_NAME, lower_case=True):
+def get_tokenizer(model_id, model_name = GLB_BERT_BASE_UNCASED_MODEL_NAME_DEFAULT, lower_case=True):
     tokenizer = None
-    if(model_id == GLB_BERT_MODEL_ID):
-        from transformers import BertTokenizer
+    try:
+        debugLog(f'Loading tokenizer... [ID:{model_id}];[Name:{model_name}]')
+        if(model_id == GLB_BERT_MODEL_ID_DEFAULT):
+            tokenizer = BertTokenizer.from_pretrained(model_name, do_lower_case=lower_case)
+        else:
+            tokenizer = AutoTokenizer.from_pretrained(model_name, do_lower_case=lower_case)
+        infoLog(f'{model_id} tokenizer was loaded successfully ({model_name})\n\tdo_lower_case={lower_case}')
+
+
+    except Exception as excmsg:
+        errorLog(f"An error happens in get_tokenizer(...) {traceback.format_exc()}.\nLet's proceed to load BERT tokenizer (default one)")
 
         debugLog('Loading BERT tokenizer...')
-        tokenizer = BertTokenizer.from_pretrained(model_name, do_lower_case=lower_case)
-        infoLog(f'{model_id} tokenizer was loaded successfully ({model_name})\n\tdo_lower_case={lower_case}')
+        tokenizer = BertTokenizer.from_pretrained(GLB_BERT_BASE_UNCASED_MODEL_NAME_DEFAULT, do_lower_case=True)
+        infoLog(f'Tokenizer was loaded successfully ({GLB_BERT_BASE_UNCASED_MODEL_NAME_DEFAULT})\n\tdo_lower_case=True')
 
     return tokenizer
 ##==========================================================================================================
@@ -165,35 +176,36 @@ Note:
  - If tokenizer=get_tokenizer(), it's created another instance of the tokenizer
  - If tokenizer=get_tokenizer, it's not created another instance unless what is sent is not an instance of some model's tokenizer
 """
-def get_all_spans_tokenized(model=GLB_BERT_MODEL_ID, tokenizer=get_tokenizer, all_spans=[], _add_special_tokens=True, _max_length=512, _pad_to_max_length = True, _return_attention_mask=True, type_tensors=GLB_PYTORCH_TENSOR_TYPE):
+def get_all_spans_tokenized(tokenizer=get_tokenizer, all_spans=[], _add_special_tokens=True, _max_length=512, _pad_to_max_length = True, _return_attention_mask=True, type_tensors=GLB_PYTORCH_TENSOR_TYPE):
     input_ids = []
     attention_masks = []
 
-    if model == GLB_BERT_MODEL_ID:
-        # For every sentence...
-        for span in all_spans:
-            # `encode_plus` will:
-            #   (1) Tokenize the sentence.
-            #   (2) Prepend the `[CLS]` token to the start.
-            #   (3) Append the `[SEP]` token to the end.
-            #   (4) Map tokens to their IDs.
-            #   (5) Pad or truncate the sentence to `max_length`
-            #   (6) Create attention masks for [PAD] tokens.
-            encoded_dict = tokenizer.encode_plus(
-                                span,                      # Sentence to encode.
-                                add_special_tokens = _add_special_tokens, # Add '[CLS]' and '[SEP]'
-                                max_length = _max_length,          # Pad & truncate all sentences.
-                                pad_to_max_length = _pad_to_max_length,  #is deprecated
-                                return_attention_mask = _return_attention_mask,   # Construct attn. masks.
-                                return_tensors = type_tensors,     # Return pytorch tensors.
-                        )
-            
+    # For every sentence...
+    for span in all_spans:
+        # `encode_plus` will:
+        #   (1) Tokenize the sentence.
+        #   (2) Prepend the `[CLS]` token to the start.
+        #   (3) Append the `[SEP]` token to the end.
+        #   (4) Map tokens to their IDs.
+        #   (5) Pad or truncate the sentence to `max_length`
+        #   (6) Create attention masks for [PAD] tokens.
+        encoded_dict = tokenizer.encode_plus(
+                            span,                      # Sentence to encode.
+                            add_special_tokens = _add_special_tokens, # Add '[CLS]' and '[SEP]'
+                            max_length = _max_length,          # Pad & truncate all sentences.
+                            pad_to_max_length = _pad_to_max_length,  #is deprecated
+                            return_attention_mask = _return_attention_mask,   # Construct attn. masks.
+                            return_tensors = type_tensors,     # Return pytorch tensors.
+                    )
+        
+        # Add the encoded sentence to the list.    
             # Add the encoded sentence to the list.    
-            input_ids.append(encoded_dict['input_ids'])
-            
-            if _return_attention_mask:
-                # And its attention mask (simply differentiates padding from non-padding).
-                attention_masks.append(encoded_dict['attention_mask'])
+        # Add the encoded sentence to the list.    
+        input_ids.append(encoded_dict['input_ids'])
+        
+        if _return_attention_mask:
+            # And its attention mask (simply differentiates padding from non-padding).
+            attention_masks.append(encoded_dict['attention_mask'])
 
 
     if _return_attention_mask:
@@ -361,7 +373,7 @@ Function: create_model
 def create_model(model_id, model_name, _num_classes, runInGpu, _output_attentions=False, _output_hidden_states=False):
     model = None
 
-    if model_id == GLB_BERT_MODEL_ID:
+    if model_id == GLB_BERT_MODEL_ID_DEFAULT:
         # Load BertForSequenceClassification, the pretrained BERT model with a single 
         # linear classification layer on top. 
         model = BertForSequenceClassification.from_pretrained(
@@ -370,6 +382,14 @@ def create_model(model_id, model_name, _num_classes, runInGpu, _output_attention
             output_attentions = _output_attentions, # Whether the model returns attentions weights.
             output_hidden_states = _output_hidden_states, # Whether the model returns all hidden-states.
         )
+    else:
+        model = AutoModelForMaskedLM.from_pretrained(
+            model_name, # Use the 12-layer BERT model, with an uncased vocab.
+            num_labels = _num_classes, # The number of output labels   
+            output_attentions = _output_attentions, # Whether the model returns attentions weights.
+            output_hidden_states = _output_hidden_states, # Whether the model returns all hidden-states.
+        )
+
 
     if runInGpu:
         # Tell pytorch to run this model on the GPU.
@@ -1011,6 +1031,7 @@ def exec_train(df_dataset, column_of_interest, col_of_reference, bert_model_id, 
             tensor_type='pt', 
             cross_validation=False, 
             run_in_gpu=True, 
+            model=None,
             optimizer=None, 
             scheduler=None,
             store_statistics_model=True,
@@ -1076,12 +1097,13 @@ def exec_train(df_dataset, column_of_interest, col_of_reference, bert_model_id, 
         train_val_corpus_cross_validation, test_corpus_cross_validation = split_dataset_train_val_test_k_fold(numeric_classes, input_ids, attention_masks, 0.1)
         
     ### Create model
-    model = create_model(
-        bert_model_id,
-        bert_model_name,
-        num_classes,
-        run_in_gpu 
-    )
+    if model == None:
+        model = create_model(
+            bert_model_id,
+            bert_model_name,
+            num_classes,
+            run_in_gpu 
+        )
     
     # Define optimizer
     if optimizer == None:
@@ -1179,3 +1201,21 @@ def give_me_segments_of_df_per_class(df, number_of_splits, column_of_interest, c
                         dict_of_segments[i_range] = pd.concat([dict_of_segments[i_range], df[df[column_of_interest] == type_id][i_range*size:i_range*size+size]])
     
     return dict_of_segments
+
+##==========================================================================================================
+"""
+Function: get_id_model
+Description: Returns the ID of the corresponding model (specified by name_model)
+Parameters: 
+    - cfg           - configuration in JSON format
+    - name_model    - Name of the model (usually defined by the transformers [HuggingFace models])
+Returns:
+    Either:
+        - ID of the model (s.a. "bert" or "other")
+        - Empty string that means it is not defined
+"""
+def get_id_model(cfg, name_model):
+    for id_list_of_models in cfg["models"].keys():
+        if name_model in cfg["models"][id_list_of_models]:
+            return id_list_of_models
+    return ""
