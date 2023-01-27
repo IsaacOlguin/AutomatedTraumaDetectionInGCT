@@ -21,7 +21,7 @@ from torch.utils.data import DataLoader, RandomSampler
 from torch.optim.lr_scheduler import CosineAnnealingLR
 #Transformers
 from transformers import BertForSequenceClassification, AdamW, BertTokenizer #, BertConfig
-from transformers import AutoTokenizer, AutoModelForMaskedLM
+from transformers import AutoTokenizer, AutoModelForSequenceClassification
 # sklearn
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import f1_score, precision_score, recall_score, accuracy_score
@@ -383,7 +383,7 @@ def create_model(model_id, model_name, _num_classes, runInGpu, _output_attention
             output_hidden_states = _output_hidden_states, # Whether the model returns all hidden-states.
         )
     else:
-        model = AutoModelForMaskedLM.from_pretrained(
+        model = AutoModelForSequenceClassification.from_pretrained(
             model_name, # Use the 12-layer BERT model, with an uncased vocab.
             num_labels = _num_classes, # The number of output labels   
             output_attentions = _output_attentions, # Whether the model returns attentions weights.
