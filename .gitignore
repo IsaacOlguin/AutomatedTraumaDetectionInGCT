@@ -1,0 +1,11 @@
+# Ignore models that are saved in "models" folder
+models/
+
+# Ignore logs
+#logs/
+
+# Clean transcripts
+output/clean_transcripts
+
+# Configuration file ()
+config.yml

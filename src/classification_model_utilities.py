@@ -455,12 +455,12 @@ def train_and_validate(model, device, num_epochs, optimizer, scheduler, train_da
     # https://github.com/huggingface/transformers/blob/5bfcd0485ece086ebcbed2d008813037968a9e58/examples/run_glue.py#L128
 
     # Set the seed value all over the place to make this reproducible.
-    #seed_val = 42
+    seed_val = 42
 
-    #random.seed(seed_val)
-    #np.random.seed(seed_val)
-    #torch.manual_seed(seed_val)
-    #torch.cuda.manual_seed_all(seed_val)
+    random.seed(seed_val)
+    np.random.seed(seed_val)
+    torch.manual_seed(seed_val)
+    torch.cuda.manual_seed_all(seed_val)
 
     # We'll store a number of quantities such as training and validation loss, 
     # validation accuracy, and timings.
@@ -759,7 +759,7 @@ def train_and_validate(model, device, num_epochs, optimizer, scheduler, train_da
 """
 Function: test_model
 """
-def test_model(model, device, test_dataloader, classes):
+def test_model(model, device, test_dataloader):
     # ========================================
     #               Test
     # ========================================
@@ -787,6 +787,8 @@ def test_model(model, device, test_dataloader, classes):
     nb_test_steps = 0
 
     io_total_test_acc = 0
+    
+    testing_stats = {}
 
     # Evaluate data for one epoch
     for batch in test_dataloader:
@@ -865,6 +867,11 @@ def test_model(model, device, test_dataloader, classes):
     # Report the final accuracy for this test run.
     avg_test_accuracy = total_test_accuracy / len(test_dataloader)
     infoLog("  Accuracy: {0:.2f}".format(avg_test_accuracy))
+    
+    testing_stats["Test Accur."] = avg_test_acc
+    testing_stats["Test Precision (macro)"], testing_stats["Test Precision (micro)"] = (np.sum(test_precision_array, axis=0)/len(test_dataloader))
+    testing_stats["Test Recall (macro)"], testing_stats["Test Recall (micro)"] = (np.sum(test_recall_array, axis=0)/len(test_dataloader))
+    testing_stats["Test F1 (macro)"], testing_stats["Test F1 (micro)"] = (np.sum(test_f1_array, axis=0)/len(test_dataloader))
 
     # Calculate the average loss over all of the batches.
     avg_test_loss = total_test_loss / len(test_dataloader)
@@ -877,9 +884,16 @@ def test_model(model, device, test_dataloader, classes):
                
     show_classification_report(test_targets, test_preds, "Classification report. TEST")
     
+    return testing_stats
+
+##==========================================================================================================
+"""
+Function: save_model
+"""
 def save_model(model, model_name, path):
     modelname_path = join(path, datetime.datetime.now().strftime("%Y%m%d_%H%M%S") + "_" + model_name + ".pt")
     torch.save(model.state_dict(), modelname_path)
+    
 ##==========================================================================================================
 """
 Function: save_json_file_statistics_model
@@ -889,6 +903,7 @@ def save_json_file_statistics_model(statistics_model, path_directory, pattern=No
     if pattern == None:
         filename = datetime.datetime.now().strftime("%Y%m%d_%H%M%S") + "_statistics_model.json"
     else:
+        pattern = pattern.replace("/", "-")
         filename = datetime.datetime.now().strftime("%Y%m%d_%H%M%S") + "_" + pattern +  "_statistics_model.json"
     
     json_file = open(join(path_directory, filename), GLB_FILE_WRITE_MODE)
@@ -1037,7 +1052,8 @@ def exec_train(df_dataset, column_of_interest, col_of_reference, bert_model_id, 
             store_statistics_model=True,
             path_dir_logs="logs/"
         ):
-
+    test_corpus = None
+    
     # Get classes of the dataset
     classes_dataset = get_unique_values_from_dataset(df_dataset, column_of_interest)
     num_classes = len(classes_dataset)
@@ -1091,9 +1107,10 @@ def exec_train(df_dataset, column_of_interest, col_of_reference, bert_model_id, 
     ### Split dataset
     if not cross_validation:
         train_labels_corpus, train_input_ids, train_attention_masks, val_labels_corpus, val_input_ids, val_attention_masks, test_labels_corpus, test_input_ids, test_attention_masks = split_dataset_train_val_test(numeric_classes, input_ids, attention_masks)
+        test_corpus = [test_labels_corpus, test_input_ids, test_attention_masks]
     else:
         ### k-Fold
-        train_val_corpus_cross_validation, test_corpus_cross_validation = split_dataset_train_val_test_k_fold(numeric_classes, input_ids, attention_masks, 0.1)
+        train_val_corpus_cross_validation, test_corpus = split_dataset_train_val_test_k_fold(numeric_classes, input_ids, attention_masks, 0.1)
         
     ### Create model
     if model == None:
@@ -1139,11 +1156,11 @@ def exec_train(df_dataset, column_of_interest, col_of_reference, bert_model_id, 
             list_statistics.append(statistics_model)
         
         if store_statistics_model:
-            save_json_file_statistics_model({"cross-validation": list_statistics}, path_dir_logs)
+            save_json_file_statistics_model({"cross-validation": list_statistics}, path_dir_logs, pattern=f"numClasses[{num_classes}]cross-val[{len(train_val_corpus_cross_validation)}]-{bert_model_name}")
 
         statistics_model = list_statistics
         
-    return model, statistics_model
+    return model, statistics_model, test_corpus
 
 ##==========================================================================================================
 """

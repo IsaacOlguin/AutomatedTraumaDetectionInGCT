@@ -241,10 +241,43 @@ def main():
         infoLog("ID of the model was not found. Execution is finished.")
         return
 
-    model, statistics = mlclassif_utilities.exec_train(df_dataset, COL_OF_INTEREST, COL_OF_REFERENCE, GLB_ID_MODEL, GLB_MODEL_NAME)
+    model, statistics, test_corpus = mlclassif_utilities.exec_train(
+                                        df_dataset, 
+                                        COL_OF_INTEREST, 
+                                        COL_OF_REFERENCE, 
+                                        GLB_ID_MODEL, 
+                                        GLB_MODEL_NAME, 
+                                        batch_size = cfg["training_model"]["batch_size"],
+                                        epochs = cfg["training_model"]["epochs"],
+                                        max_length_sentence = cfg["training_model"]["max_length"],
+                                        cross_validation = cfg["training_model"]["cross_validation"],
+                                        store_statistics_model = cfg["training_model"]["store_statistics"]
+                                    )
+                                    
+    #save_json_file_statistics_model({"cross-validation": list_statistics}, path_dir_logs, pattern=f"numClasses[{num_classes}]cross-val[{len(train_val_corpus_cross_validation)}
+    testing_stats = None
+    if cfg["training_model"]["test_model"]:
+        infoLog("To execute testing of the model on test_data")
+        device = mlclassif_utilities.get_gpu_device_if_exists()
+        
+        test_dataset = mlclassif_utilities.create_tensor_dataset(test_corpus[1], test_corpus[2], test_corpus[0])
+        test_dataloader = mlclassif_utilities.create_dataloader(test_dataset, cfg["training_model"]["batch_size"])
+        
+        testing_stats = mlclassif_utilities.test_model(model, device, test_dataloader)
+        
 
     infoLog(f"From binary classification we present the following statistics: {statistics}")
-
+    if cfg["training_model"]["store_statistics"]:
+        if cfg["training_model"]["test_model"]:
+            final_stats = {"training_and_val" :statistics, "test" : testing_stats }
+            mlclassif_utilities.save_json_file_statistics_model(final_stats, cfg["general_set_up"]["logs_dir_name"], 
+                        pattern=f'{GLB_MODEL_NAME}-binaryClass-withTest-epochs{cfg["training_model"]["epochs"]}-batchSize{cfg["training_model"]["batch_size"]}'
+                )
+        else:
+            final_stats = {"training_and_val" :statistics }
+            mlclassif_utilities.save_json_file_statistics_model(final_stats, cfg["general_set_up"]["logs_dir_name"],
+                        pattern=f'{GLB_MODEL_NAME}-binaryClass-withoutTest-epochs{cfg["training_model"]["epochs"]}-batchSize{cfg["training_model"]["batch_size"]}'
+                )
 
 if __name__ == "__main__":
     main()
