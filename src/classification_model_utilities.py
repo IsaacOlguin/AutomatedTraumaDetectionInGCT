@@ -901,10 +901,10 @@ Function: save_json_file_statistics_model
 def save_json_file_statistics_model(statistics_model, path_directory, pattern=None):
     filename = ""
     if pattern == None:
-        filename = datetime.datetime.now().strftime("%Y%m%d_%H%M%S") + "_statistics_model.json"
+        filename = datetime.datetime.now().strftime("%Y%m%d%H%M%S") + "_statistics_model.json"
     else:
         pattern = pattern.replace("/", "-")
-        filename = datetime.datetime.now().strftime("%Y%m%d_%H%M%S") + "_" + pattern +  "_statistics_model.json"
+        filename = datetime.datetime.now().strftime("%Y%m%d%H%M%S") + "_" + pattern +  "_statistics_model.json"
     
     json_file = open(join(path_directory, filename), GLB_FILE_WRITE_MODE)
     json_file.write(json.dumps(statistics_model, indent=4))
@@ -1220,18 +1220,101 @@ def give_me_segments_of_df_per_class(df, number_of_splits, column_of_interest, c
 
 ##==========================================================================================================
 """
-Function: get_id_model
-Description: Returns the ID of the corresponding model (specified by name_model)
+Function: save_plot
+Description: Function that helps to store a plot of matplotlib
 Parameters: 
-    - cfg           - configuration in JSON format
-    - name_model    - Name of the model (usually defined by the transformers [HuggingFace models])
-Returns:
-    Either:
-        - ID of the model (s.a. "bert" or "other")
-        - Empty string that means it is not defined
+    - plot
+    - pattern   - Defines a pattern
 """
-def get_id_model(cfg, name_model):
-    for id_list_of_models in cfg["models"].keys():
-        if name_model in cfg["models"][id_list_of_models]:
-            return id_list_of_models
-    return ""
+def save_plot(plot, pattern="", path="", format=".png"):
+    if len(pattern) == 0:
+        plot.savefig(join(path, f'{gral_utilities.get_datetime_format()}-plot{format}'))
+    else:
+        plot.savefig(join(path, f'{gral_utilities.get_datetime_format()}-{pattern}{format}'))
+
+##==========================================================================================================
+"""
+Function: draw_statistics_of_models
+Description: Creates a plot with the models' statistics
+Parameters: 
+    - df
+    - columns_of_interest
+    - epoch
+    - index
+    - size_x
+    - size_y
+    - _dpi
+    - _loc
+    - withLabelsInPlot
+    - showPlot
+    - showScatter
+"""
+def draw_statistics_of_models(df, columns_of_interest, epoch=None, _index=None, size_x=15, size_y=10, _dpi=80, _loc="best",
+                               withLabelsInPlot=False, _title="", showPlot=True, showScatter=True):
+  fig = plt.figure(figsize=(size_x, size_y), dpi=_dpi)
+
+  for i_index, model_name in enumerate(df["index"].unique()):
+    for i_column, column_name in enumerate(columns_of_interest):
+      df_aux = df[df["index"] == model_name][column_name]
+    
+      if showPlot == False and showScatter == False:
+        plt.plot(np.arange(len(df_aux)), df_aux)
+        plt.scatter(np.arange(len(df_aux)), df_aux)
+      elif showPlot == False:
+        plt.scatter(np.arange(len(df_aux)), df_aux)
+      elif showScatter == False:
+        plt.plot(np.arange(len(df_aux)), df_aux)
+      else:
+        plt.plot(np.arange(len(df_aux)), df_aux)
+
+      if withLabelsInPlot == True:
+        for x, y in zip(np.arange(len(df_aux)), list(df_aux)):
+          plt.text(x, y, str(round(y, 4)))
+  plt.title(_title)
+  plt.legend(df["index"].unique(), loc=_loc)
+  plt.xticks(np.arange(len(df_aux)), labels=np.arange(len(df_aux)))
+
+  return plt
+  
+##==========================================================================================================
+"""
+Function: get_df_statistics_model
+Description: Execute to get the dataframe of the model's statistics
+Parameters:
+    - json_models_statistics
+    - model_names
+    - _method
+    - _index_column_name
+"""
+def get_df_statistics_model(json_models_statistics, model_names, _method='ffill', _index_column_name="index"):  
+    df_statistics = None
+    for index, (json_obj, name) in enumerate(zip(json_models_statistics, model_names)):
+        df_aux_stats = pd.DataFrame(json_obj)
+        df_aux_stats[_index_column_name] = name
+        df_aux_stats.reset_index(drop=True)
+        """
+        df_aux_setup = pd.DataFrame(set_up)
+        df_aux_setup.reset_index(drop=True)
+
+        df_aux_stats = pd.concat([df_aux_stats, df_aux_setup], axis=1)
+        df_aux_stats.fillna(method=_method, inplace=True)
+        """
+
+        if index == 0:
+            df_statistics = df_aux_stats
+        else:
+            df_statistics = pd.concat([df_statistics, df_aux_stats])
+    df_statistics.reset_index(drop=True)
+    df_statistics.set_index(_index_column_name, inplace=True)
+    return df_statistics.reset_index()
+    
+##==========================================================================================================
+"""
+Function: merge_df_train_validate_test
+Description: Execute to get the dataframe with train_validate_and_test statistics
+Parameters:
+    - df_train_validate
+    - df_test
+"""
+#def merge_df_train_validate_test(df_train_validate, df_test):
+    
