@@ -7,7 +7,7 @@
 ############################################################################
 ############################################################################
 general_set_up:
-    dataset_filename: "20230112_Dataset_W_Batch1.xlsx" #"Dataset.xlsx"
+    dataset_filename: "20230131_DatasetWitnesses.xlsx"
     input_dir_name: "input"
     output_dir_name: "output"
     dataset_dir_name: "dataset"
@@ -16,12 +16,12 @@ general_set_up:
     plots_dir_name: "plots"
     
 dataset:
-    index_columns_dataset: 0
-    list_columns_names: ["id_document", "id_annotation", "start", "span", "role", "trauma", "court", "Comments1", "Comments2"] #["id_document", "id_annotation", "span", "role", "trauma", "court"]
+    index_columns_dataset: 1
+    list_columns_names: ["id_document", "id_annotation", "start", "text", "role", "trauma", "court"] 
     col_of_interest_binary_classif: "trauma"
     col_of_interest_multi_label_classif: "role"
-    col_of_reference_binary_classif: "span"
-    col_of_reference_multi_label_classif: "span"
+    col_of_reference_binary_classif: "text"
+    col_of_reference_multi_label_classif: "text"
 
 models: 
     bert: ["bert-base-uncased", "nlpaueb/legal-bert-base-uncased"]

@@ -87,10 +87,29 @@ def warnLog(message):
 
 ##==========================================================================================================
 """
-["span", "role", "trauma", "court"]
+Function: import_dataset_from_excel
 """
-def import_dataset_from_excel(path_dataset, header_index, columns_names_list):
+def import_dataset_from_excel(path_dataset, header_index=None, columns_names_list=None):
+    if header_index == None and columns_names_list == None:
+        return pd.read_excel(path_dataset)
     return pd.read_excel(path_dataset, header=header_index, names=columns_names_list)
+
+##==========================================================================================================
+"""
+Function: export_dataset_to_excel
+"""
+def export_dataset_to_excel(df, path_to_store_df=".", name_file="", _header=None, _index=True, add_timestamp_to_filename=True):
+    if name_file == "":
+        name_file = gral_utilities.get_datetime_format() + "_Dataset.xlsx"
+    elif add_timestamp_to_filename:
+        name_file = gral_utilities.get_datetime_format() + "_" + name_file
+
+    if _header != None or len(_header) == 0:
+        df.to_excel(join(path_to_store_df, name_file), index=_index)
+    else:
+        df.to_excel(join(path_to_store_df, name_file), header=_header, index=_index)
+    infoLog("Export executed successfully")
+
 ##==========================================================================================================
 """
 Function: get_gpu_device_if_exists
