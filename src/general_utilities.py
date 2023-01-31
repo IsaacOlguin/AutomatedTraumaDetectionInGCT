@@ -54,6 +54,15 @@ def configure_logger(levelStdout=logging.DEBUG, levelFile=logging.DEBUG, path_pr
 
     return LOGGER
 
+##==========================================================================================================
+"""
+Function:       read_config_file()
+Description:    Configure logger of the project
+Parameters:     config_file_path - path to the config file
+Return:         Either:
+                - cfg   - the configuration JSON content
+                - None  - In case, there was a problem while opening/reading the file
+"""
 def read_config_file(config_file_path):
     if config_file_path == None:
         config_file_path = "config.yml"

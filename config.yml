@@ -2,7 +2,7 @@
 ############################################################################
 ### Description:    Configuration file of the project: "Automated Trauma
 ###                 Detection in Genocide Court Transcripts"
-### Author:         Isaac Misael Olguin Nolasco
+### Author:         Isaac Misael Olguín Nolasco
 ### January 2023, TUM
 ############################################################################
 ############################################################################
@@ -13,6 +13,7 @@ general_set_up:
     dataset_dir_name: "dataset"
     logs_dir_name: "logs"
     models_dir_name: "models"
+    plots_dir_name: "plots"
     
 dataset:
     index_columns_dataset: 0
@@ -27,7 +28,7 @@ models:
     other: ["snowood1/ConfliBERT-scr-uncased", "GroNLP/hateBERT"]
 
 training_model:
-    model_name: "bert-base-uncased" # { "bert-base-uncased" | "nlpaueb/legal-bert-small-uncased" }
+    model_name: "GroNLP/hateBERT" # { "bert-base-uncased" | "nlpaueb/legal-bert-small-uncased" }
     epochs: 3
     batch_size: 8
     embedding_size: 512
@@ -35,7 +36,7 @@ training_model:
     cross_validation: False
     save_model: False
     store_statistics: True
-    test_model: False
+    test_model: True
     add_special_tokes: True
     max_length: 512
     pad_to_max_length: True
