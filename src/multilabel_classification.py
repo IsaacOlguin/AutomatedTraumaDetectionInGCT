@@ -9,7 +9,7 @@ import json
 import os
 from os.path import join
 
-import multi_label_classif_model_utilities as mlclassif_utilities
+import classification_model_utilities as mlclassif_utilities
 
 ####### Globals
 GLB_DEFINE_PATH_PROJECT = False
