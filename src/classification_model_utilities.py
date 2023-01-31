@@ -1310,6 +1310,24 @@ def get_df_statistics_model(json_models_statistics, model_names, _method='ffill'
     
 ##==========================================================================================================
 """
+Function: get_id_model
+Description: Returns the ID of the corresponding model (specified by name_model)
+Parameters: 
+    - cfg           - configuration in JSON format
+    - name_model    - Name of the model (usually defined by the transformers [HuggingFace models])
+Returns:
+    Either:
+        - ID of the model (s.a. "bert" or "other")
+        - Empty string that means it is not defined
+"""
+def get_id_model(cfg, name_model):
+    for id_list_of_models in cfg["models"].keys():
+        if name_model in cfg["models"][id_list_of_models]:
+            return id_list_of_models
+    return ""
+
+##==========================================================================================================
+"""
 Function: merge_df_train_validate_test
 Description: Execute to get the dataframe with train_validate_and_test statistics
 Parameters:
