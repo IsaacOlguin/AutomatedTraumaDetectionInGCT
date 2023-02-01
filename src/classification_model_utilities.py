@@ -1347,11 +1347,174 @@ def get_id_model(cfg, name_model):
 
 ##==========================================================================================================
 """
-Function: merge_df_train_validate_test
-Description: Execute to get the dataframe with train_validate_and_test statistics
+Function: get_df_statistics_model_with_active_training
+Description: Execute the extraction of a model's information from a JSON object
 Parameters:
-    - df_train_validate
-    - df_test
+    - df_statistics of a model
 """
-#def merge_df_train_validate_test(df_train_validate, df_test):
+def get_df_statistics_model_with_active_training(json_actLrng, json_lengths, model_name, _method='ffill', _index_column_name="model"):
+    df_statistics = None
+
+    LCL_TRAIN_AND_VAL = "training_and_val"
+    LCL_TEST = "test"
+    LCL_SPLIT_INDEX = "id_split"
+
+    df_train_and_val = None
+    df_test = None
+
+    for index, elem_al in enumerate(json_actLrng):
+        df_aux_tr_val_stats = pd.DataFrame.from_records(elem_al[LCL_TRAIN_AND_VAL])
+        df_aux_tr_val_stats[_index_column_name] = model_name
+        df_aux_tr_val_stats[LCL_SPLIT_INDEX] = index+1
+        df_aux_tr_val_stats.reset_index(drop=True)
+        #print(df_aux_tr_val_stats)
+
+        json_test = elem_al[LCL_TEST]
+        df_aux_test_stats = pd.DataFrame.from_records([json_test])
+        df_aux_test_stats[_index_column_name] = model_name
+        df_aux_test_stats[LCL_SPLIT_INDEX] = index+1
+        df_aux_test_stats.reset_index(drop=True)
+
+        if index == 0:
+            df_train_and_val = df_aux_tr_val_stats
+            df_test = df_aux_test_stats
+        else:
+            df_train_and_val = pd.concat([df_train_and_val, df_aux_tr_val_stats])
+            df_test = pd.concat([df_test, df_aux_test_stats])
+
+    df_train_and_val.set_index([_index_column_name, LCL_SPLIT_INDEX], inplace=True)
+    df_test.set_index([_index_column_name, LCL_SPLIT_INDEX], inplace=True)
+
+    df_train_and_val = df_train_and_val.reset_index()
+    df_test = df_test.reset_index()
+
+    df_statistics = df_train_and_val.merge(
+        df_test,
+        on=[_index_column_name, LCL_SPLIT_INDEX],
+        how="left"
+    )
+
+    df_lengths = pd.DataFrame.from_records(json_lengths)
+    df_statistics = df_statistics.merge(
+        df_lengths,
+        on=LCL_SPLIT_INDEX,
+        how="left"
+    )
+
+    return df_statistics
+
+##==========================================================================================================
+"""
+Function: draw_statistics_of_models_ac_without_cv
+Description: Creates a plot with the models' statistics
+Parameters: 
+    - df
+    - columns_of_interest
+    - epoch
+    - index
+    - size_x
+    - size_y
+    - _dpi
+    - _loc
+    - withLabelsInPlot
+    - showPlot
+    - showScatter
+"""
+def draw_statistics_of_models_ac_without_cv(df, 
+        column_of_interest, 
+        size_x=15, size_y=10, _dpi=80, _loc="best",
+        withLabelsInPlot=False, _title="", 
+        showPlot=True, showScatter=True):
+
+    fig = plt.figure(figsize=(size_x, size_y), dpi=_dpi)
+
+    for i_index, model_name in enumerate(df["model"].unique()):
+        df_aux = df[df["model"] == model_name][[column_of_interest, "id_split", "length_training", "length_validation", "length_test"]]
+
+        if showPlot == False and showScatter == False:
+            plt.plot(np.arange(len(df_aux["id_split"])), df_aux[column_of_interest])
+            plt.scatter(np.arange(len(df_aux["id_split"])), df_aux[column_of_interest])
+        elif showPlot == False:
+            plt.scatter(np.arange(len(df_aux["id_split"])), df_aux[column_of_interest])
+        elif showScatter == False:
+            plt.plot(np.arange(len(df_aux["id_split"])), df_aux[column_of_interest])
+        else:
+            plt.plot(np.arange(len(df_aux["id_split"])), df_aux[column_of_interest])
+
+        if withLabelsInPlot == True:
+            for x, y in zip(np.arange(len(df_aux["id_split"])), list(df_aux[column_of_interest])):
+                plt.text(x, y, str(round(y, 4)))
+    plt.title(_title)
+    plt.legend(df["model"].unique(), loc=_loc)
+    if "Valid" in column_of_interest:
+        plt.xticks(np.arange(len(df_aux["id_split"])), labels=df_aux["length_validation"])
+    elif "Test" in column_of_interest:
+        plt.xticks(np.arange(len(df_aux["id_split"])), labels=df_aux["length_test"])
+
+    return plt
+
+
+##==========================================================================================================
+"""
+Function: get_df_statistics_model_with_active_training_and_cross_validation
+Description: Execute the extraction of a model's information from a JSON object
+Parameters:
+    - df_statistics of a model
+"""
+def get_df_statistics_model_with_active_training_and_cross_validation(json_actLrng, json_lengths, model_name, _method='ffill', _index_column_name="model"):
+    df_statistics = None
+
+    LCL_TRAIN_AND_VAL = "training_and_val"
+    LCL_TEST = "test"
+    LCL_SPLIT_INDEX = "id_split"
+    LCL_CV_INDEX = "id_cross_val"
+
+    df_train_and_val = None
+    df_test = None
+
+    for index_al, elem_al in enumerate(json_actLrng):
+        for index_cv, elem_cv in enumerate(elem_al[LCL_TRAIN_AND_VAL]):
+            df_aux_tr_val_stats = pd.DataFrame.from_records(elem_cv)
+            df_aux_tr_val_stats[_index_column_name] = model_name
+            df_aux_tr_val_stats[LCL_SPLIT_INDEX] = index_al+1
+            df_aux_tr_val_stats[LCL_CV_INDEX] = index_cv+1
+            df_aux_tr_val_stats.reset_index(drop=True)
+
+            if index_al == 0 and index_cv == 0:
+                df_train_and_val = df_aux_tr_val_stats
+            else:
+                df_train_and_val = pd.concat([df_train_and_val, df_aux_tr_val_stats])
+
+        json_test = elem_al[LCL_TEST]
+        df_aux_test_stats = pd.DataFrame.from_records([json_test])
+        df_aux_test_stats[_index_column_name] = model_name
+        df_aux_test_stats[LCL_SPLIT_INDEX] = index_al+1
+        df_aux_test_stats[LCL_CV_INDEX] = index_cv+1
+        df_aux_test_stats.reset_index(drop=True)
+
+        if index_al == 0:
+            df_test = df_aux_test_stats
+        else:
+            df_test = pd.concat([df_test, df_aux_test_stats])
+
     
+    df_train_and_val.set_index([_index_column_name, LCL_SPLIT_INDEX, LCL_CV_INDEX], inplace=True)
+    df_test.set_index([_index_column_name, LCL_SPLIT_INDEX, LCL_CV_INDEX], inplace=True)
+
+    df_train_and_val = df_train_and_val.reset_index()
+    df_test = df_test.reset_index()
+
+    df_statistics = df_train_and_val.merge(
+        df_test,
+        on=[_index_column_name, LCL_SPLIT_INDEX],
+        how="left"
+    )
+
+    df_lengths = pd.DataFrame.from_records(json_lengths)
+    df_statistics = df_statistics.merge(
+        df_lengths,
+        on=LCL_SPLIT_INDEX,
+        how="left"
+    )
+
+    return df_statistics
