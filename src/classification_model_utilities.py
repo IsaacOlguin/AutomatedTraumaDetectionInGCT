@@ -1405,7 +1405,7 @@ def get_df_statistics_model_with_active_training(json_actLrng, json_lengths, mod
 
 ##==========================================================================================================
 """
-Function: draw_statistics_of_models_ac_without_cv
+Function: draw_statistics_of_models_ac
 Description: Creates a plot with the models' statistics
 Parameters: 
     - df
@@ -1419,18 +1419,39 @@ Parameters:
     - withLabelsInPlot
     - showPlot
     - showScatter
+    - bestMetricSelection
 """
-def draw_statistics_of_models_ac_without_cv(df, 
+def draw_statistics_of_models_ac(df, 
         column_of_interest, 
-        size_x=15, size_y=10, _dpi=80, _loc="best",
+        size_x=15, size_y=4, _dpi=80, _loc="best",
         withLabelsInPlot=False, _title="", 
-        showPlot=True, showScatter=True):
+        showPlot=True, showScatter=True,
+        bestMetricSelection=False,
+        dfHasCrossValidation=False):
 
     fig = plt.figure(figsize=(size_x, size_y), dpi=_dpi)
+    
+    if bestMetricSelection:
+        if "Valid" in column_of_interest:
+            df = get_smart_selection_df(df, "Validation")
+        elif "Test" in column_of_interest:
+            df = get_smart_selection_df(df, "Test")
+        elif "Training" in column_of_interest:
+            df = get_smart_selection_df(df, "Training")
+            
+    else:
+        if dfHasCrossValidation:
+            max_epoch = df["epoch"].max()
+            max_cv = df["id_cross_val_x"].max()
+            df = df[(df["epoch"]==max_epoch) & (df["id_cross_val_x"]==max_cv)]
+        else:
+            max_epoch = df["epoch"].max()
+            df = df[df["epoch"]==max_epoch]
 
+    df_x_axis = None
     for i_index, model_name in enumerate(df["model"].unique()):
-        df_aux = df[df["model"] == model_name][[column_of_interest, "id_split", "length_training", "length_validation", "length_test"]]
-
+        df_aux = df[df["model"] == model_name][[column_of_interest, "epoch", "id_split", "length_training", "length_validation", "length_test"]]
+            
         if showPlot == False and showScatter == False:
             plt.plot(np.arange(len(df_aux["id_split"])), df_aux[column_of_interest])
             plt.scatter(np.arange(len(df_aux["id_split"])), df_aux[column_of_interest])
@@ -1446,11 +1467,25 @@ def draw_statistics_of_models_ac_without_cv(df,
                 plt.text(x, y, str(round(y, 4)))
     plt.title(_title)
     plt.legend(df["model"].unique(), loc=_loc)
+    plt.ylim(0.5,1.01, 0.1)
+    
+    df_epochs = None
     if "Valid" in column_of_interest:
-        plt.xticks(np.arange(len(df_aux["id_split"])), labels=df_aux["length_validation"])
+        id_column_ref = "length_validation"
     elif "Test" in column_of_interest:
-        plt.xticks(np.arange(len(df_aux["id_split"])), labels=df_aux["length_test"])
-
+        id_column_ref = "length_test"
+    elif "Training" in column_of_interest:
+        id_column_ref = "length_training"
+    df_epochs = df[[id_column_ref, "model", "epoch"]].pivot(index=id_column_ref, columns=["model"]).reset_index()
+    
+    for i, model_name in enumerate(df["model"].unique()):
+        if i == 0:
+            df_epochs["x_axis"] = "Size:" + df_epochs[(id_column_ref, "")].astype(str) + "\nM" + str(i) + "Ep" + ":" + df_epochs[("epoch", model_name)].astype(str)
+        else:
+            df_epochs["x_axis"] = df_epochs["x_axis"] + "\nM" + str(i) + "Ep" + ":" + df_epochs[("epoch", model_name)].astype(str)
+            
+    plt.xticks(np.arange(len(df_aux[id_column_ref])), labels=df_epochs[("x_axis", "")])
+    
     return plt
 
 
@@ -1518,3 +1553,48 @@ def get_df_statistics_model_with_active_training_and_cross_validation(json_actLr
     )
 
     return df_statistics
+    
+##==========================================================================================================
+"""
+Function: get_smart_selection_df
+Description: Retrieve information of statistics from models that were executed without CrossValidation
+Parameters:
+    - df        - Dataframe with the statistics of the model
+    - factor    - Define whether the desired elements belong to { "Training", "Validation", "Test" }
+"""
+def get_smart_selection_df(df, factor):
+    training_columns = [ "Training Precision (macro)", "Training Precision (micro)", "Training Recall (macro)", "Training Recall (micro)", "Training F1 (macro)", "Training F1 (micro)" ]
+    validation_columns = [ 'Valid. Precision (macro)', 'Valid. Precision (micro)', 'Valid. Recall (macro)', 'Valid. Recall (micro)', 'Valid. F1 (macro)', 'Valid. F1 (micro)' ]
+    test_columns = [ 'Test Precision (macro)', 'Test Precision (micro)', 'Test Recall (macro)', 'Test Recall (micro)', 'Test F1 (macro)', 'Test F1 (micro)' ]
+    
+    columns_priority_ranking = None
+    columns_of_interest = None
+    if factor == "Training":
+      columns_priority_ranking = [ 'Training F1 (macro)', "Training Recall (macro)" ]
+      columns_of_interest = training_columns
+    elif factor == "Validation":
+      columns_priority_ranking = [ 'Valid. F1 (macro)', "Valid. Recall (macro)" ]
+      columns_of_interest = validation_columns
+    elif factor == "Test":
+      columns_priority_ranking = [ 'Valid. F1 (macro)', "Valid. Recall (macro)" ]#[ 'Test F1 (macro)', "Test Recall (macro)" ]
+      columns_of_interest = test_columns
+    else:
+      print("ERROR - Not valid option")
+      return None
+    
+    #df_selection = df[["model", "id_split", "epoch"] + columns_of_interest + ["length_training", "length_validation", "length_test"]]
+    if factor != "Test":
+        df_selection = df[["model", "id_split", "epoch"] + columns_of_interest + ["length_training", "length_validation", "length_test"]]
+    else:
+        df_selection = df[["model", "id_split", "epoch"] + validation_columns + test_columns + ["length_training", "length_validation", "length_test"]]
+    
+    df_smart_selection = None
+    for index_model, model_name in enumerate(df_selection["model"].unique()):
+      for i, index_split in enumerate(df_selection[df_selection["model"]==model_name]["id_split"].unique()):
+        df_row = df_selection[(df_selection["model"] == model_name) & (df_selection["id_split"] == index_split)].sort_values(columns_priority_ranking, axis=0, ascending=False)[0:1]
+        if i==0 and index_model==0:
+          df_smart_selection = df_row
+        else:
+          df_smart_selection = pd.concat([df_smart_selection, df_row])
+    return df_smart_selection
+    
