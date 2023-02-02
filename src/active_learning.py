@@ -59,8 +59,14 @@ import logging
 from sklearn.exceptions import UndefinedMetricWarning
 import warnings
 # Custom code
-import classification_model_utilities as mlclassif_utilities
-import general_utilities as gral_utilities
+try:
+    import classification_model_utilities as mlclassif_utilities
+except:
+    import src.classification_model_utilities as mlclassif_utilities
+try:
+    import general_utilities as gral_utilities
+except:
+    import src.general_utilities as gral_utilities
 
 ###################################################################################################
 ###################################################################################################
@@ -244,7 +250,11 @@ def read_input_arguments():
 ###################################################################################################
 ###################################################################################################
 
-def main():
+def main(input_par_model_name=None):
+    global LOGGER
+    global GLB_MODEL_NAME
+    LOGGER = None
+    
     configure_logger()
     mlclassif_utilities.setLogger(LOGGER)
     
@@ -270,6 +280,10 @@ def main():
     odlst = collections.OrderedDict(sorted(dict_of_segments.items()))
     list_statistics = list()
     
+    if input_par_model_name != None:
+        GLB_MODEL_NAME = input_par_model_name
+        infoLog("********************** ATENTION **********************")
+        infoLog(f"Classification is being executed in mode for INPUT_PARAMETERS. Model name => {GLB_MODEL_NAME}")
     GLB_ID_MODEL = mlclassif_utilities.get_id_model(cfg, GLB_MODEL_NAME)
     if GLB_ID_MODEL == None or GLB_ID_MODEL == "":
         infoLog("ID of the model was not found. Execution is finished.")
@@ -283,6 +297,14 @@ def main():
         
         # Read config file again - in case it is desired to store a model or change something at execution time
         cfg = read_config_file("config.yml")
+        if input_par_model_name != None:
+            GLB_MODEL_NAME = input_par_model_name
+            infoLog("********************** ATENTION **********************")
+            infoLog(f"Classification is being executed in mode for INPUT_PARAMETERS. Model name => {GLB_MODEL_NAME}")
+        GLB_ID_MODEL = mlclassif_utilities.get_id_model(cfg, GLB_MODEL_NAME)
+        if GLB_ID_MODEL == None or GLB_ID_MODEL == "":
+            infoLog("ID of the model was not found. Execution is finished.")
+            return
         
         model, statistics, test_corpus = mlclassif_utilities.exec_train(
                                         df, 
@@ -322,7 +344,8 @@ def main():
         
     infoLog(f"From active learning we present the following statistics: {statistics}")
     if GLB_STORE_STATISTICS_MODEL:
-        mlclassif_utilities.save_json_file_statistics_model(f"active_learning: {list_statistics}", PATH_DIR_LOGS,
+        json_object = {"active_learning": list_statistics}
+        mlclassif_utilities.save_json_file_statistics_model(json_object, PATH_DIR_LOGS,
             pattern=f'{GLB_MODEL_NAME}-active_learning-{CLASSIFICATION_TASK}-epochs{cfg["training_model"]["epochs"]}-batchSize{cfg["training_model"]["batch_size"]}')
 
         

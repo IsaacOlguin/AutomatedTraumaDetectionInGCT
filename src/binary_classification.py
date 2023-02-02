@@ -60,8 +60,14 @@ import logging
 from sklearn.exceptions import UndefinedMetricWarning
 import warnings
 # Custom code
-import classification_model_utilities as mlclassif_utilities
-import general_utilities as gral_utilities
+try:
+    import classification_model_utilities as mlclassif_utilities
+except:
+    import src.classification_model_utilities as mlclassif_utilities
+try:
+    import general_utilities as gral_utilities
+except:
+    import src.general_utilities as gral_utilities
 
 ###################################################################################################
 ###################################################################################################
@@ -217,7 +223,7 @@ def read_input_arguments():
 ###################################################################################################
 ###################################################################################################
 
-def main():
+def main(input_par_model_name=None):
     global LOGGER
     LOGGER = gral_utilities.configure_logger(_datetime=gral_utilities.get_datetime_format(), pattern="binaryClassification")
     mlclassif_utilities.setLogger(LOGGER)
@@ -236,6 +242,11 @@ def main():
     classes_dataset = [int(elem) if gral_utilities.isfloat(elem) else elem for elem in mlclassif_utilities.get_unique_values_from_dataset(df_dataset, COL_OF_INTEREST)]
     debugLog(f"classes_dataset <<{classes_dataset}>>")
 
+    if input_par_model_name != None:
+        global GLB_MODEL_NAME
+        GLB_MODEL_NAME = input_par_model_name
+        infoLog("******** ATENTION ********")
+        infoLog(f"Binary classification is being executed in mode for INPUT_PARAMETERS. Model name => {GLB_MODEL_NAME}")
     GLB_ID_MODEL = mlclassif_utilities.get_id_model(cfg, GLB_MODEL_NAME)
     if GLB_ID_MODEL == None or GLB_ID_MODEL == "":
         infoLog("ID of the model was not found. Execution is finished.")
