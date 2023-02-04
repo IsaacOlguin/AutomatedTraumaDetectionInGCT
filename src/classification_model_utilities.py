@@ -1,6 +1,6 @@
 ###############################################################
-## Description: Utilities implementation for the multi-label 
-##              classification model
+## Description: Utilities implementation for the binary and  
+##              multi-label classification model
 ## Author: Isaac Misael Olguín Nolasco
 ## December 2022, TUM
 ###############################################################
@@ -746,25 +746,25 @@ def train_and_validate(model, device, num_epochs, optimizer, scheduler, train_da
         # Record all statistics from this epoch.
         training_stats.append(
             {
-                'epoch': epoch_i + 1,
-                'Training Loss': avg_train_loss,
-                'Training Accur.': io_avg_train_acc,
-                'Training Precision (macro)': (np.sum(train_precision_array, axis=0)/len(train_dataloader))[0], 
-                'Training Precision (micro)': (np.sum(train_precision_array, axis=0)/len(train_dataloader))[1], 
-                'Training Recall (macro)': (np.sum(train_recall_array, axis=0)/len(train_dataloader))[0],
-                'Training Recall (micro)': (np.sum(train_recall_array, axis=0)/len(train_dataloader))[1],
-                'Training F1 (macro)': (np.sum(train_f1_array, axis=0)/len(train_dataloader))[0],
-                'Training F1 (micro)': (np.sum(train_f1_array, axis=0)/len(train_dataloader))[1],
-                'Valid. Loss': avg_val_loss,
-                'Valid. Accur.': avg_val_accuracy,
-                'Valid. Precision (macro)': (np.sum(val_precision_array, axis=0)/len(validation_dataloader))[0], 
-                'Valid. Precision (micro)': (np.sum(val_precision_array, axis=0)/len(validation_dataloader))[1], 
-                'Valid. Recall (macro)': (np.sum(val_recall_array, axis=0)/len(validation_dataloader))[0],
-                'Valid. Recall (micro)': (np.sum(val_recall_array, axis=0)/len(validation_dataloader))[1],
-                'Valid. F1 (macro)': (np.sum(val_f1_array, axis=0)/len(validation_dataloader))[0],
-                'Valid. F1 (micro)': (np.sum(val_f1_array, axis=0)/len(validation_dataloader))[1],
-                'Training Time': training_time,
-                'Validation Time': validation_time
+                "epoch": epoch_i + 1,
+                "Training Loss": avg_train_loss,
+                "Training Accur.": io_avg_train_acc,
+                "Training Precision (macro)": (np.sum(train_precision_array, axis=0)/len(train_dataloader))[0], 
+                "Training Precision (micro)": (np.sum(train_precision_array, axis=0)/len(train_dataloader))[1], 
+                "Training Recall (macro)": (np.sum(train_recall_array, axis=0)/len(train_dataloader))[0],
+                "Training Recall (micro)": (np.sum(train_recall_array, axis=0)/len(train_dataloader))[1],
+                "Training F1 (macro)": (np.sum(train_f1_array, axis=0)/len(train_dataloader))[0],
+                "Training F1 (micro)": (np.sum(train_f1_array, axis=0)/len(train_dataloader))[1],
+                "Valid. Loss": avg_val_loss,
+                "Valid. Accur.": avg_val_accuracy,
+                "Valid. Precision (macro)": (np.sum(val_precision_array, axis=0)/len(validation_dataloader))[0], 
+                "Valid. Precision (micro)": (np.sum(val_precision_array, axis=0)/len(validation_dataloader))[1], 
+                "Valid. Recall (macro)": (np.sum(val_recall_array, axis=0)/len(validation_dataloader))[0],
+                "Valid. Recall (micro)": (np.sum(val_recall_array, axis=0)/len(validation_dataloader))[1],
+                "Valid. F1 (macro)": (np.sum(val_f1_array, axis=0)/len(validation_dataloader))[0],
+                "Valid. F1 (micro)": (np.sum(val_f1_array, axis=0)/len(validation_dataloader))[1],
+                "Training Time": training_time,
+                "Validation Time": validation_time
             }
         )
 
@@ -910,8 +910,21 @@ def test_model(model, device, test_dataloader):
 Function: save_model
 """
 def save_model(model, model_name, path):
-    modelname_path = join(path, datetime.datetime.now().strftime("%Y%m%d_%H%M%S") + "_" + model_name + ".pt")
-    torch.save(model.state_dict(), modelname_path)
+    try:
+        print("Path", path)
+        print("model_name", model_name)
+        modelname_path = datetime.datetime.now().strftime("%Y%m%d%H%M%S") + "_" + model_name + "_dict.pt"
+        modelname_path = ((modelname_path.replace(" ", "")).replace("/", "-")).replace("\\", "-")
+        modelname_path = join(path, modelname_path)
+        torch.save(model.state_dict(), modelname_path)
+        modelname_path = datetime.datetime.now().strftime("%Y%m%d%H%M%S") + "_" + model_name + "_full.pt"
+        modelname_path = ((modelname_path.replace(" ", "")).replace("/", "-")).replace("\\", "-")
+        modelname_path = join(path, modelname_path)
+        torch.save(model, modelname_path)
+    except Exception as err:
+        print("ERROR", err)
+        torch.save(model.state_dict(), datetime.datetime.now().strftime("%Y%m%d%H%M%S") + "_model_dict.pt")
+        torch.save(model, datetime.datetime.now().strftime("%Y%m%d%H%M%S") + "_model_full.pt")
     
 ##==========================================================================================================
 """
@@ -1069,7 +1082,10 @@ def exec_train(df_dataset, column_of_interest, col_of_reference, bert_model_id, 
             optimizer=None, 
             scheduler=None,
             store_statistics_model=True,
-            path_dir_logs="logs/"
+            path_dir_logs="logs/",
+            path_project="./",
+            path_models="models/",
+            store_model=False
         ):
     test_corpus = None
     
@@ -1158,6 +1174,8 @@ def exec_train(df_dataset, column_of_interest, col_of_reference, bert_model_id, 
         test_dataloader = create_dataloader(test_dataset, batch_size)
         
         model, statistics_model = train_and_validate(model, device, epochs, optimizer, scheduler, train_dataloader, val_dataloader, numeric_classes.tolist())
+        
+        #save_model(model, "model_wo-cv", join(path_project, path_models))
     
     else:
         list_statistics = list()
