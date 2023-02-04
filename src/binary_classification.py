@@ -289,6 +289,9 @@ def main(input_par_model_name=None):
             mlclassif_utilities.save_json_file_statistics_model(final_stats, cfg["general_set_up"]["logs_dir_name"],
                         pattern=f'{GLB_MODEL_NAME}-binaryClass-withoutTest-epochs{cfg["training_model"]["epochs"]}-batchSize{cfg["training_model"]["batch_size"]}'
                 )
+    
+    if GLB_SAVE_MODEL:
+        mlclassif_utilities.save_model(model, f"model_{CLASSIFICATION_TASK}_{GLB_MODEL_NAME}_Epochs-{EPOCHS}", join(PATH_PROJECT, PATH_DIR_MODELS))
 
 if __name__ == "__main__":
     main()
