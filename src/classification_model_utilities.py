@@ -1438,6 +1438,10 @@ Parameters:
     - showPlot
     - showScatter
     - bestMetricSelection
+    - dfHasCrossValidation
+    - y_lim_min
+    - y_lim_max
+    - y_lim_interval
 """
 def draw_statistics_of_models_ac(df, 
         column_of_interest, 
@@ -1445,7 +1449,10 @@ def draw_statistics_of_models_ac(df,
         withLabelsInPlot=False, _title="", 
         showPlot=True, showScatter=True,
         bestMetricSelection=False,
-        dfHasCrossValidation=False):
+        dfHasCrossValidation=False,
+        y_lim_min = 0.5,
+        y_lim_max = 1.01,
+        y_lim_interval = 0.1):
 
     fig = plt.figure(figsize=(size_x, size_y), dpi=_dpi)
     
@@ -1485,7 +1492,7 @@ def draw_statistics_of_models_ac(df,
                 plt.text(x, y, str(round(y, 4)))
     plt.title(_title)
     plt.legend(df["model"].unique(), loc=_loc)
-    plt.ylim(0.5,1.01, 0.1)
+    plt.ylim(y_lim_min, y_lim_max, y_lim_interval)
     
     df_epochs = None
     if "Valid" in column_of_interest:
