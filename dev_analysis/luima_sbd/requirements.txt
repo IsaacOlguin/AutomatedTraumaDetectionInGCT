@@ -1,3 +1,0 @@
-python-crfsuite
-Flask
-chardet
