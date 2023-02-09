@@ -17,11 +17,13 @@ import matplotlib.pyplot as plt
 # torch
 import torch
 from torch.utils.data import TensorDataset, random_split
-from torch.utils.data import DataLoader, RandomSampler
+from torch.utils.data import DataLoader, RandomSampler, SubsetRandomSampler
 from torch.optim.lr_scheduler import CosineAnnealingLR
+import torch.nn as nn
 #Transformers
 from transformers import BertForSequenceClassification, AdamW, BertTokenizer #, BertConfig
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
+from transformers import get_linear_schedule_with_warmup
 # sklearn
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import f1_score, precision_score, recall_score, accuracy_score
@@ -379,7 +381,7 @@ def split_dataset_train_val_test_k_fold(labels, input_ids, attention_masks, perc
 """
 Function: create_dataloader
 """
-def create_dataloader(dataset, batch_size, sampler=RandomSampler):
+def create_dataloader(dataset, batch_size, sampler=RandomSampler):#RandomSampler
     return DataLoader(
             dataset,  # The samples.
             sampler = sampler(dataset), # Select batches randomly
@@ -421,22 +423,33 @@ def create_model(model_id, model_name, _num_classes, runInGpu, _output_attention
 Function: get_optimizer
 """
 def get_optimizer(model, learning_rate = 2e-5, epsilon=1e-8, _weight_decay=0):
+    learning_rate = float(learning_rate)
     optimizer = AdamW(model.parameters(),
                   lr = learning_rate,#2e-5, # args.learning_rate - default is 5e-5, our notebook had 2e-5
                   eps = epsilon, # args.adam_epsilon  - default is 1e-8.
                   weight_decay=_weight_decay#0.01
                 )
+    debugLog("Optimizer")
+    debugLog(optimizer)
     return optimizer
 ##==========================================================================================================
 """
 Function: get_scheduler
 """
-def get_scheduler(optimizer, value=600, _min_lr=1e-5):
+def get_scheduler(optimizer, value=600, _min_lr=1e-5, len_train_dataloader=None, epochs=None):
+    
     scheduler = CosineAnnealingLR(
         optimizer, 
         value, 
         eta_min = _min_lr
     )
+    """
+    total_steps = len_train_dataloader * epochs
+    scheduler = get_linear_schedule_with_warmup(optimizer, 
+                                            num_warmup_steps = 0,
+                                            num_training_steps = total_steps)
+    """
+    
     return scheduler
 ##==========================================================================================================
 """
@@ -469,6 +482,7 @@ def train_and_validate(model, device, num_epochs, optimizer, scheduler, train_da
     va_metrics = []
     tmp_print_flag = True
 
+    loss_func = nn.CrossEntropyLoss( label_smoothing = 0.1 )
 
     # This training code is based on the `run_glue.py` script here:
     # https://github.com/huggingface/transformers/blob/5bfcd0485ece086ebcbed2d008813037968a9e58/examples/run_glue.py#L128
@@ -578,6 +592,9 @@ def train_and_validate(model, device, num_epochs, optimizer, scheduler, train_da
 
             loss = result.loss
             logits = result.logits
+            
+            
+            loss = loss_func(logits, b_labels)
 
             """
             print(f'loss {loss}')
@@ -877,10 +894,10 @@ def test_model(model, device, test_dataloader):
     avg_test_acc = io_total_test_acc / len(test_dataloader)
     infoLog(
         f'''\n\
-        Valid_acc : {avg_test_acc}\n\
-        Valid_precision (macro, micro): {(np.sum(test_precision_array, axis=0)/len(test_dataloader))}\n\
-        Valid_recall (macro, micro): {(np.sum(test_recall_array, axis=0)/len(test_dataloader))}\n\
-        Valid_F1 (macro, micro): {(np.sum(test_f1_array, axis=0)/len(test_dataloader))}'''
+        Test_acc : {avg_test_acc}\n\
+        Test_precision (macro, micro): {(np.sum(test_precision_array, axis=0)/len(test_dataloader))}\n\
+        Test_recall (macro, micro): {(np.sum(test_recall_array, axis=0)/len(test_dataloader))}\n\
+        Test_F1 (macro, micro): {(np.sum(test_f1_array, axis=0)/len(test_dataloader))}'''
     )
     
     # Report the final accuracy for this test run.
@@ -1085,7 +1102,10 @@ def exec_train(df_dataset, column_of_interest, col_of_reference, bert_model_id, 
             path_dir_logs="logs/",
             path_project="./",
             path_models="models/",
-            store_model=False
+            store_model=False,
+            learning_rate = 2e-5,
+            epsilon_optimizer = 1e-8,
+            weight_decay = 0
         ):
     test_corpus = None
     
@@ -1096,6 +1116,8 @@ def exec_train(df_dataset, column_of_interest, col_of_reference, bert_model_id, 
     debugLog(f"Num of different classes in the dataset is {num_classes} which are:")
     for index, elem in enumerate(classes_dataset):
         debugLog(f"\t {index+1} - {elem}")
+        
+    warnLog(df_dataset["trauma"].value_counts())
 
     # Define device to be used
     device = get_gpu_device_if_exists()
@@ -1158,11 +1180,12 @@ def exec_train(df_dataset, column_of_interest, col_of_reference, bert_model_id, 
     
     # Define optimizer
     if optimizer == None:
-        optimizer = get_optimizer(model)
+        optimizer = get_optimizer(model, learning_rate=learning_rate, epsilon=epsilon_optimizer, _weight_decay=weight_decay)
     
     # Define scheduler
     if scheduler == None:
         scheduler = get_scheduler(optimizer)
+    
 
     if not cross_validation:
         train_dataset = create_tensor_dataset(train_input_ids, train_attention_masks, train_labels_corpus)
@@ -1172,6 +1195,11 @@ def exec_train(df_dataset, column_of_interest, col_of_reference, bert_model_id, 
         train_dataloader = create_dataloader(train_dataset, batch_size)
         val_dataloader = create_dataloader(val_dataset, batch_size)
         test_dataloader = create_dataloader(test_dataset, batch_size)
+        
+        """
+        if scheduler == None:
+            scheduler = get_scheduler(optimizer, len_train_dataloader=len(train_dataloader), epochs=epochs)
+        """
         
         model, statistics_model = train_and_validate(model, device, epochs, optimizer, scheduler, train_dataloader, val_dataloader, numeric_classes.tolist())
         
@@ -1185,6 +1213,11 @@ def exec_train(df_dataset, column_of_interest, col_of_reference, bert_model_id, 
     
             train_dataloader = create_dataloader(train_dataset, batch_size)
             val_dataloader = create_dataloader(val_dataset, batch_size)
+            
+            """
+            if scheduler == None:
+                scheduler = get_scheduler(optimizer, len_train_dataloader=len(train_dataloader), epochs=epochs)
+            """
     
             debugLog('='*50)
             debugLog(f"Cross-Validation Split {(index_cross_val+1)}/{len(train_val_corpus_cross_validation)}")
@@ -1474,6 +1507,8 @@ def draw_statistics_of_models_ac(df,
             df = df[df["epoch"]==max_epoch]
 
     df_x_axis = None
+    #list_colors = ["steelblue", "peru"]
+    list_colors = ["black", "black"]
     for i_index, model_name in enumerate(df["model"].unique()):
         df_aux = df[df["model"] == model_name][[column_of_interest, "epoch", "id_split", "length_training", "length_validation", "length_test"]]
             
@@ -1489,9 +1524,10 @@ def draw_statistics_of_models_ac(df,
 
         if withLabelsInPlot == True:
             for x, y in zip(np.arange(len(df_aux["id_split"])), list(df_aux[column_of_interest])):
-                plt.text(x, y, str(round(y, 4)))
-    plt.title(_title)
-    plt.legend(df["model"].unique(), loc=_loc)
+                plt.text(x, y, str(round(y, 4)), color=list_colors[i_index])
+    plt.title("\n\n" + _title)
+    list_models_name = [ f"M{i}:{name}" for i, name in enumerate(df["model"].unique())]
+    plt.legend(list_models_name, loc=_loc)
     plt.ylim(y_lim_min, y_lim_max, y_lim_interval)
     
     df_epochs = None
@@ -1505,9 +1541,9 @@ def draw_statistics_of_models_ac(df,
     
     for i, model_name in enumerate(df["model"].unique()):
         if i == 0:
-            df_epochs["x_axis"] = "Size:" + df_epochs[(id_column_ref, "")].astype(str) + "\nM" + str(i) + "Ep" + ":" + df_epochs[("epoch", model_name)].astype(str)
+            df_epochs["x_axis"] = "Size:" + df_epochs[(id_column_ref, "")].astype(str) + "\nM" + str(i) + " - Ep" + ":" + df_epochs[("epoch", model_name)].astype(str)
         else:
-            df_epochs["x_axis"] = df_epochs["x_axis"] + "\nM" + str(i) + "Ep" + ":" + df_epochs[("epoch", model_name)].astype(str)
+            df_epochs["x_axis"] = df_epochs["x_axis"] + "\nM" + str(i) + " - Ep" + ":" + df_epochs[("epoch", model_name)].astype(str)
             
     plt.xticks(np.arange(len(df_aux[id_column_ref])), labels=df_epochs[("x_axis", "")])
     
