@@ -38,6 +38,7 @@ CLASSIFICATION_TASK = ""
 COL_OF_REFERENCE = ""
 GLB_RUN_IN_GPU = True
 GLB_MODEL_NAME = ""
+GLB_LEARNING_RATE = 2e-5
 
 ###################################################################################################
 ###################################################################################################
@@ -206,6 +207,15 @@ def read_config_file(config_file_path):
 
     global GLB_MODEL_NAME
     GLB_MODEL_NAME = cfg["training_model"]["model_name"]
+    
+    global GLB_LEARNING_RATE
+    GLB_LEARNING_RATE = float(cfg["training_model"]["learning_rate"])
+    
+    global GLB_WEIGHT_DECAY
+    GLB_WEIGHT_DECAY = float(cfg["training_model"]["weight_decay"])
+    
+    global GLB_EPSILON_OPTIMIZER
+    GLB_EPSILON_OPTIMIZER = float(cfg["training_model"]["epsilon_optimizer"])
 
     return cfg
 
@@ -262,7 +272,10 @@ def main(input_par_model_name=None):
                                         epochs = cfg["training_model"]["epochs"],
                                         max_length_sentence = cfg["training_model"]["max_length"],
                                         cross_validation = cfg["training_model"]["cross_validation"],
-                                        store_statistics_model = cfg["training_model"]["store_statistics"]
+                                        store_statistics_model = cfg["training_model"]["store_statistics"],
+                                        learning_rate = GLB_LEARNING_RATE,
+                                        epsilon_optimizer = GLB_EPSILON_OPTIMIZER,
+                                        weight_decay = GLB_WEIGHT_DECAY
                                     )
                                     
     #save_json_file_statistics_model({"cross-validation": list_statistics}, path_dir_logs, pattern=f"numClasses[{num_classes}]cross-val[{len(train_val_corpus_cross_validation)}
