@@ -29,21 +29,23 @@ models:
 
 training_model:
     model_name: "bert-base-uncased"
-    epochs: 3
-    batch_size: 8
+    epochs: 4
+    batch_size: 32
     embedding_size: 512
     return_attention_mask: True
-    cross_validation: False
-    save_model: False
-    store_statistics: False
+    cross_validation: True
+    save_model: True
+    store_statistics: True
     test_model: True
     add_special_tokes: True
     max_length: 512
     pad_to_max_length: True
     run_in_gpu: True
-    classification_task: "binary"    # [binary|multi]
-    learning_rate: 2e-5
+    classification_task: "binary"    # [binary|multi]#1e-5
+    learning_rate: 1e-6
+    epsilon_optimizer: 1e-8
+    weight_decay: 0
 
 active_training:
-    size_splits_dataset: 5
+    size_splits_dataset: 8
     classification_task: "binary"    # [binary|multi]
