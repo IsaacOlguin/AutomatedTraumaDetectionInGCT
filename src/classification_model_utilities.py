@@ -1549,6 +1549,119 @@ def draw_statistics_of_models_ac(df,
     
     return plt
 
+##==========================================================================================================
+"""
+Function: draw_statistics_of_models_ac_spec_paper
+Description: Creates a plot with the models' statistics. Version specific for the paper release
+Parameters: 
+    - df
+    - columns_of_interest
+    - epoch
+    - index
+    - size_x
+    - size_y
+    - _dpi
+    - _loc
+    - withLabelsInPlot
+    - showPlot
+    - showScatter
+    - bestMetricSelection
+    - dfHasCrossValidation
+    - y_lim_min
+    - y_lim_max
+    - y_lim_interval
+"""
+def draw_statistics_of_models_ac_spec_paper(df, 
+        column_of_interest, 
+        size_x=15, size_y=4, _dpi=80, _loc="best",
+        withLabelsInPlot=False, _title="", 
+        showPlot=True, showScatter=True,
+        bestMetricSelection=False,
+        dfHasCrossValidation=False,
+        y_lim_min = 0.5,
+        y_lim_max = 1.01,
+        y_lim_interval = 0.1):
+
+    fig = plt.figure(figsize=(size_x, size_y), dpi=_dpi)
+    
+    if bestMetricSelection:
+        if "Valid" in column_of_interest:
+            df = get_smart_selection_df(df, "Validation")
+        elif "Test" in column_of_interest:
+            df = get_smart_selection_df(df, "Test")
+        elif "Training" in column_of_interest:
+            df = get_smart_selection_df(df, "Training")
+            
+    else:
+        if dfHasCrossValidation:
+            max_epoch = df["epoch"].max()
+            max_cv = df["id_cross_val_x"].max()
+            df = df[(df["epoch"]==max_epoch) & (df["id_cross_val_x"]==max_cv)]
+        else:
+            max_epoch = df["epoch"].max()
+            df = df[df["epoch"]==max_epoch]
+
+    df_x_axis = None
+    #list_colors = ["steelblue", "peru"]
+    list_colors = ["black", "black"]
+    for i_index, model_name in enumerate(df["model"].unique()):
+        df_aux = df[df["model"] == model_name][[column_of_interest, "epoch", "id_split", "length_training", "length_validation", "length_test"]]
+            
+        if showPlot == False and showScatter == False:
+            plt.plot(np.arange(len(df_aux["id_split"])), df_aux[column_of_interest])
+            plt.scatter(np.arange(len(df_aux["id_split"])), df_aux[column_of_interest])
+        elif showPlot == False:
+            plt.scatter(np.arange(len(df_aux["id_split"])), df_aux[column_of_interest])
+        elif showScatter == False:
+            plt.plot(np.arange(len(df_aux["id_split"])), df_aux[column_of_interest])
+        else:
+            plt.plot(np.arange(len(df_aux["id_split"])), df_aux[column_of_interest])
+
+        if withLabelsInPlot == True:
+            y_str = None
+            #for x, y in zip(np.arange(len(df_aux["id_split"])), list(df_aux[column_of_interest])):
+            for index_labels, (x, y) in enumerate(zip(np.arange(len(df_aux["id_split"])), list(df_aux[column_of_interest]))):
+                if "F1" in column_of_interest:
+                    if i_index == 0: # BertBase
+                        if index_labels in [2, 6, 7]:
+                            y_str = str(round(y, 4)) + "\n"
+                    elif i_index == 1: # HateBert
+                        if index_labels in [0, 5]:
+                            y_str = str(round(y, 4)) + "\n"
+                elif "Recall" in column_of_interest:
+                    if i_index == 0: # BertBase
+                        if index_labels in [2, 3, 4, 7]:
+                            y_str = str(round(y, 4)) + "\n"
+                    elif i_index == 1: # HateBert
+                        if index_labels in [6]:
+                            y_str = str(round(y, 4)) + "\n"
+                if y_str == None: 
+                    y_str = str(round(y, 4))
+                plt.text(x, y, y_str, color=list_colors[i_index])
+                y_str = None
+    plt.title("\n\n" + _title)
+    list_models_name = [ f"M{i}:{name}" for i, name in enumerate(df["model"].unique())]
+    plt.legend(list_models_name, loc=_loc)
+    plt.ylim(y_lim_min, y_lim_max, y_lim_interval)
+    
+    df_epochs = None
+    if "Valid" in column_of_interest:
+        id_column_ref = "length_validation"
+    elif "Test" in column_of_interest:
+        id_column_ref = "length_test"
+    elif "Training" in column_of_interest:
+        id_column_ref = "length_training"
+    df_epochs = df[[id_column_ref, "model", "epoch"]].pivot(index=id_column_ref, columns=["model"]).reset_index()
+    
+    for i, model_name in enumerate(df["model"].unique()):
+        if i == 0:
+            df_epochs["x_axis"] = "Size:" + df_epochs[(id_column_ref, "")].astype(str) + "\nM" + str(i) + " - Ep" + ":" + df_epochs[("epoch", model_name)].astype(str)
+        else:
+            df_epochs["x_axis"] = df_epochs["x_axis"] + "\nM" + str(i) + " - Ep" + ":" + df_epochs[("epoch", model_name)].astype(str)
+            
+    plt.xticks(np.arange(len(df_aux[id_column_ref])), labels=df_epochs[("x_axis", "")])
+    
+    return plt
 
 ##==========================================================================================================
 """

@@ -7,7 +7,7 @@
 ############################################################################
 ############################################################################
 general_set_up:
-    dataset_filename: "20230207_Dataset_GTC_FINAL_Witnesses.xlsx" #"20230131_DatasetWitness.xlsx"
+    dataset_filename: "20230207_Dataset_GTC_FINAL_Witnesses.xlsx"
     input_dir_name: "input"
     output_dir_name: "output"
     dataset_dir_name: "dataset"
@@ -17,7 +17,7 @@ general_set_up:
     
 dataset:
     index_columns_dataset: 1
-    list_columns_names: ["tribunal", "id_transcript", "case", "accused", "date", "text", "trauma", "role", "witnesses", "n_witnesses", "start", "id_annotation", "id_document"] #["id_document", "id_annotation", "start", "text", "role", "trauma", "court"] 
+    list_columns_names: ["tribunal", "id_transcript", "case", "accused", "date", "text", "trauma", "role", "witnesses", "n_witnesses", "start", "id_annotation", "id_document"] 
     col_of_interest_binary_classif: "trauma"
     col_of_interest_multi_label_classif: "role"
     col_of_reference_binary_classif: "text"
@@ -28,12 +28,12 @@ models:
     other: ["snowood1/ConfliBERT-scr-uncased", "GroNLP/hateBERT"]
 
 training_model:
-    model_name: "bert-base-uncased"
+    model_name: "GroNLP/hateBERT"
     epochs: 4
     batch_size: 32
     embedding_size: 512
     return_attention_mask: True
-    cross_validation: True
+    cross_validation: False
     save_model: True
     store_statistics: True
     test_model: True
@@ -41,7 +41,7 @@ training_model:
     max_length: 512
     pad_to_max_length: True
     run_in_gpu: True
-    classification_task: "binary"    # [binary|multi]#1e-5
+    classification_task: "binary"    # [binary|multi]
     learning_rate: 1e-6
     epsilon_optimizer: 1e-8
     weight_decay: 0

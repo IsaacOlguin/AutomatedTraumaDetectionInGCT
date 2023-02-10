@@ -37,6 +37,9 @@ COL_OF_REFERENCE = ""
 GLB_RUN_IN_GPU = True
 LOGGER = None
 GLB_MODEL_NAME = ""
+GLB_LEARNING_RATE = 2e-5
+GLB_WEIGHT_DECAY = 0
+GLB_EPSILON_OPTIMIZER = 1e-8
         
 ###################################################################################################
 ###################################################################################################
@@ -234,6 +237,15 @@ def read_config_file(config_file_path):
         global GLB_MODEL_NAME
         GLB_MODEL_NAME = cfg["training_model"]["model_name"]
         
+        global GLB_LEARNING_RATE
+        GLB_LEARNING_RATE = float(cfg["training_model"]["learning_rate"])
+        
+        global GLB_WEIGHT_DECAY
+        GLB_WEIGHT_DECAY = float(cfg["training_model"]["weight_decay"])
+        
+        global GLB_EPSILON_OPTIMIZER
+        GLB_EPSILON_OPTIMIZER = float(cfg["training_model"]["epsilon_optimizer"])
+        
     return cfg
 
 """
@@ -272,7 +284,7 @@ def main(input_par_model_name=None):
     
     df_dataset = mlclassif_utilities.import_dataset_from_excel(PATH_DATASET, INDEX_COLUMNS_DATASET, LIST_NAME_COLUMNS_DATASET)
     debugLog(f"Col of interest {COL_OF_INTEREST}")
-    classes_dataset = [int(elem) if isfloat(elem) else elem for elem in mlclassif_utilities.get_unique_values_from_dataset(df_dataset, COL_OF_INTEREST)]
+    classes_dataset = [int(elem) if gral_utilities.isfloat(elem) else elem for elem in mlclassif_utilities.get_unique_values_from_dataset(df_dataset, COL_OF_INTEREST)]
     debugLog(f"classes_dataset {classes_dataset}")
     
     # Split the dataset for the Active Training purposes
@@ -316,7 +328,10 @@ def main(input_par_model_name=None):
                                         epochs = cfg["training_model"]["epochs"],
                                         max_length_sentence = cfg["training_model"]["max_length"],
                                         cross_validation = cfg["training_model"]["cross_validation"],
-                                        store_statistics_model = cfg["training_model"]["store_statistics"]
+                                        store_statistics_model = cfg["training_model"]["store_statistics"],
+                                        learning_rate = GLB_LEARNING_RATE,
+                                        epsilon_optimizer = GLB_EPSILON_OPTIMIZER,
+                                        weight_decay = GLB_WEIGHT_DECAY
                                     )
         debugLog("="*100)
         debugLog("*"*80)
@@ -337,7 +352,7 @@ def main(input_par_model_name=None):
             testing_stats = mlclassif_utilities.test_model(model, device, test_dataloader)
             
             aux_json = {"training_and_val": statistics, "test": testing_stats}
-            list_statistics.append(f"{aux_json}")
+            list_statistics.append(aux_json)
         else:
             list_statistics.append(statistics)
         
@@ -347,17 +362,9 @@ def main(input_par_model_name=None):
         json_object = {"active_learning": list_statistics}
         mlclassif_utilities.save_json_file_statistics_model(json_object, PATH_DIR_LOGS,
             pattern=f'{GLB_MODEL_NAME}-active_learning-{CLASSIFICATION_TASK}-epochs{cfg["training_model"]["epochs"]}-batchSize{cfg["training_model"]["batch_size"]}')
-
         
     if GLB_SAVE_MODEL:
-        mlclassif_utilities.save_model(model, f"model_active_lrn_{CLASSIFICATION_TASK}", PATH_DIR_MODELS)
-
-def isfloat(num):
-    try:
-        float(num)
-        return True
-    except ValueError:
-        return False
+        mlclassif_utilities.save_model(model, f"model_active_lrn_{CLASSIFICATION_TASK}_{GLB_MODEL_NAME}_Epochs-{EPOCHS}", PATH_DIR_MODELS)
         
 if __name__ == "__main__":
     main()
