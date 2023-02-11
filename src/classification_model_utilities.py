@@ -54,6 +54,8 @@ GLB_PYTORCH_TENSOR_TYPE = "pt"
 GLB_DEVICE_CPU = "cpu"
 GLB_FILE_READ_MODE = "r"
 GLB_FILE_WRITE_MODE = "w"
+GLB_LIST_MODES_4_SELECTING_DATASET = ["random", "first", "last"]
+GLB_MIN_NUM_SAMPLES_PER_CLASS_4_TRAINING_AND_TESTING = 3
 LOGGER = None
 
 def setLogger(logger):
@@ -1395,6 +1397,91 @@ def get_id_model(cfg, name_model):
         if name_model in cfg["models"][id_list_of_models]:
             return id_list_of_models
     return ""
+    
+##==========================================================================================================
+"""
+Function: get_df_with_specific_size
+Description: Retrieve dataset with a specific size once all constraints are fulfilled. Otherwise, return None
+        in order to stop execution.
+Parameters:
+    - df                - Dataframe with dataset
+    - mode_selection    - Define mode for selecting elements { "random", "first", "last" }
+"""
+def get_df_with_specific_size(df, mode, col_of_interest, col_of_reference, desired_size):
+    infoLog(f"Parameters at get_df_with_specific_size are [{mode}, {col_of_interest}, {col_of_reference}, {desired_size}]")
+    if mode not in GLB_LIST_MODES_4_SELECTING_DATASET:
+        infoLog(f'Mode provided by the user [{mode}] is not valid.')
+        return None
+    
+    if not isinstance(desired_size, int):
+        infoLog(f'Desired size provided by the user [{desired_size}] is not valid')
+        return None
+    elif desired_size > len(df):
+        infoLog(f'Desired size [{desired_size}] is bigger than the current size of the dataset [{len(df)}]')
+        return None
+    
+    list_classes = get_unique_values_from_dataset(df, col_of_interest)
+    num_classes = len(list_classes)
+    
+    text_warning = ""
+    """
+    for id_class in list_classes:
+        num_elems_per_class_in_dataset = len()
+        if num_elems_per_class_in_dataset < GLB_MIN_NUM_SAMPLES_PER_CLASS_4_TRAINING_AND_TESTING:
+            text_warning = f'{text_warning}\nClass [{id_class}] does not fulfill the min number of samples for training [{GLB_MIN_NUM_SAMPLES_PER_CLASS_4_TRAINING_AND_TESTING}]'
+    """
+    
+    if len(text_warning) > 0:
+        infoLog(text_warning)
+        return None
+        
+    if desired_size < (num_classes*GLB_MIN_NUM_SAMPLES_PER_CLASS_4_TRAINING_AND_TESTING):
+        infoLog(f"The length of the dataset is small in comparison with the desired_size in order to split the dataset into |Training|Val|Test")
+        return None
+        
+    list_distribution = list(round(df.groupby(col_of_interest).count()/len(df), 2)[col_of_reference])
+    infoLog(f"Distribution of classes {list_classes} is {list_distribution}")
+    
+    list_new_num_elems_per_class = [int(np.floor(dist_x_class * desired_size)) for dist_x_class in list_distribution]
+    infoLog(f"New number of elements per class {list_classes} is {list_new_num_elems_per_class}")
+    
+    df_final = None
+    for index_glb, (num_list, id_class) in enumerate(zip(list_new_num_elems_per_class, list_classes)):
+        df_aux = df[df[col_of_interest]==id_class].reset_index(drop=True)
+        
+        list_classes_src = list(df_aux[col_of_interest])
+        index_values = random.sample(list(enumerate(list_classes_src)), num_list)
+        list_indices = [index for (index, val) in index_values]
+        
+        if index_glb == 0:
+            df_final = df_aux.loc[df_aux.index[list_indices]]
+        else:
+            df_final = pd.concat([df_final, df_aux.loc[df_aux.index[list_indices]]], axis=0)
+
+    df_final = df_final.reset_index(drop=True)
+    
+    infoLog(f"Size of final dataset is {len(df_final)} (may differ from -1 due to factor control)")
+    infoLog(f"Number of elements per class\n{df_final[col_of_interest].value_counts()}")
+    list_distribution = list(round(df_final.groupby(col_of_interest).count()/len(df_final), 2)[col_of_reference])
+    infoLog(f"Final distribution of the new dataset {list_distribution}")
+        
+    return df_final
+    
+# DEBUG BEGIN
+"""
+factor = 20
+proportion_1 = 13
+proportion_0 = 87
+debugLog("df_dataset.shape")
+debugLog(df_dataset.shape)
+df_dataset_w_trauma = df_dataset[df_dataset["trauma"]==1][0:(proportion_1*factor)]
+df_dataset_wo_trauma = df_dataset[df_dataset["trauma"]==0][0:(proportion_0*factor)]
+df_dataset = pd.concat([df_dataset_wo_trauma, df_dataset_w_trauma], axis=0)
+debugLog(df_dataset["trauma"].value_counts())
+debugLog("df_dataset")
+debugLog(df_dataset.shape)
+"""
+# DEBUG END
 
 ##==========================================================================================================
 """

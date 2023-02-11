@@ -28,8 +28,8 @@ models:
     other: ["snowood1/ConfliBERT-scr-uncased", "GroNLP/hateBERT"]
 
 training_model:
-    model_name: "GroNLP/hateBERT"
-    epochs: 4
+    model_name: "bert-base-uncased"
+    epochs: 3
     batch_size: 32
     embedding_size: 512
     return_attention_mask: True
@@ -41,11 +41,14 @@ training_model:
     max_length: 512
     pad_to_max_length: True
     run_in_gpu: True
-    classification_task: "binary"    # [binary|multi]
+    classification_task: "binary"           # [binary|multi]
     learning_rate: 1e-6
     epsilon_optimizer: 1e-8
     weight_decay: 0
+    size_dataset: 0
+    mode_select_elems_dataset: "random"     # [random|first|last]
 
 active_training:
     size_splits_dataset: 8
-    classification_task: "binary"    # [binary|multi]
+    classification_task: "binary"           # [binary|multi]
+    

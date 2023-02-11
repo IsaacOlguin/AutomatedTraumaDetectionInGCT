@@ -41,6 +41,8 @@ GLB_MODEL_NAME = ""
 GLB_LEARNING_RATE = 2e-5
 GLB_WEIGHT_DECAY = 0
 GLB_EPSILON_OPTIMIZER = 1e-8
+GLB_TRAINING_SIZE_DATASET = None
+GLB_MODE_SELECT_ELEMS_DATASET = None
 
 ###################################################################################################
 ###################################################################################################
@@ -218,6 +220,12 @@ def read_config_file(config_file_path):
     
     global GLB_EPSILON_OPTIMIZER
     GLB_EPSILON_OPTIMIZER = float(cfg["training_model"]["epsilon_optimizer"])
+    
+    global GLB_TRAINING_SIZE_DATASET
+    GLB_TRAINING_SIZE_DATASET = int(cfg["training_model"]["size_dataset"])
+    
+    global GLB_MODE_SELECT_ELEMS_DATASET
+    GLB_MODE_SELECT_ELEMS_DATASET = cfg["training_model"]["mode_select_elems_dataset"]
 
     return cfg
 
@@ -259,10 +267,21 @@ def main(input_par_model_name=None):
         GLB_MODEL_NAME = input_par_model_name
         infoLog("******** ATENTION ********")
         infoLog(f"Binary classification is being executed in mode for INPUT_PARAMETERS. Model name => {GLB_MODEL_NAME}")
+        
     GLB_ID_MODEL = mlclassif_utilities.get_id_model(cfg, GLB_MODEL_NAME)
     if GLB_ID_MODEL == None or GLB_ID_MODEL == "":
         infoLog("ID of the model was not found. Execution is finished.")
         return
+    
+    if GLB_TRAINING_SIZE_DATASET != None:
+        if isinstance(GLB_TRAINING_SIZE_DATASET, int) and GLB_TRAINING_SIZE_DATASET > 0:
+            infoLog(f"To extract specific size of the dataset. Value in the config file {GLB_TRAINING_SIZE_DATASET}")
+            
+            df_dataset = mlclassif_utilities.get_df_with_specific_size(df_dataset, GLB_MODE_SELECT_ELEMS_DATASET, COL_OF_INTEREST, COL_OF_REFERENCE, GLB_TRAINING_SIZE_DATASET)
+        else:
+            infoLog("Using the whole dataset as it's not indicated explicitly something different [2]")
+    else:
+        infoLog("Using the whole dataset as it's not indicated explicitly something different [1]")
 
     model, statistics, test_corpus = mlclassif_utilities.exec_train(
                                         df_dataset, 
