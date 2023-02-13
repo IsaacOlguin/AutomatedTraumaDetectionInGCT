@@ -45,8 +45,8 @@ training_model:
     learning_rate: 1e-6
     epsilon_optimizer: 1e-8
     weight_decay: 0
-    size_dataset: 0
-    mode_select_elems_dataset: "random"     # [random|first|last]
+    size_dataset: 0                         # if 0 => use all dataset
+    mode_select_elems_dataset: "random"     # [random]
 
 active_training:
     size_splits_dataset: 8
