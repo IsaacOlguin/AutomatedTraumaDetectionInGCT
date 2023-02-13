@@ -1,0 +1,772 @@
+2023-02-11 12:41:42,747 | DEBUG | Reading directory path
+2023-02-11 12:41:43,056 | DEBUG | {'general_set_up': {'dataset_filename': '20230207_Dataset_GTC_FINAL_Witnesses.xlsx', 'input_dir_name': 'input', 'output_dir_name': 'output', 'dataset_dir_name': 'dataset', 'logs_dir_name': 'logs', 'models_dir_name': 'models', 'plots_dir_name': 'plots'}, 'dataset': {'index_columns_dataset': 1, 'list_columns_names': ['tribunal', 'id_transcript', 'case', 'accused', 'date', 'text', 'trauma', 'role', 'witnesses', 'n_witnesses', 'start', 'id_annotation', 'id_document'], 'col_of_interest_binary_classif': 'trauma', 'col_of_interest_multi_label_classif': 'role', 'col_of_reference_binary_classif': 'text', 'col_of_reference_multi_label_classif': 'text'}, 'models': {'bert': ['bert-base-uncased', 'nlpaueb/legal-bert-base-uncased'], 'other': ['snowood1/ConfliBERT-scr-uncased', 'GroNLP/hateBERT']}, 'training_model': {'model_name': 'GroNLP/hateBERT', 'epochs': 3, 'batch_size': 32, 'embedding_size': 512, 'return_attention_mask': True, 'cross_validation': True, 'save_model': True, 'store_statistics': True, 'test_model': True, 'add_special_tokes': True, 'max_length': 512, 'pad_to_max_length': True, 'run_in_gpu': True, 'classification_task': 'binary', 'learning_rate': '1e-6', 'epsilon_optimizer': '1e-8', 'weight_decay': 0, 'size_dataset': 0, 'mode_select_elems_dataset': 'random'}, 'active_training': {'size_splits_dataset': 8, 'classification_task': 'binary'}}
+2023-02-11 12:41:48,054 | DEBUG | Col of interest <<trauma>>
+2023-02-11 12:41:48,055 | DEBUG | classes_dataset <<[0, 1]>>
+2023-02-11 12:41:48,056 | INFO | Using the whole dataset as it's not indicated explicitly something different [2]
+2023-02-11 12:41:48,056 | DEBUG | Num of different classes in the dataset is 2 which are:
+2023-02-11 12:41:48,056 | DEBUG | 	 1 - 0
+2023-02-11 12:41:48,056 | DEBUG | 	 2 - 1
+2023-02-11 12:41:48,057 | WARNING | 0    16536
+1     2568
+Name: trauma, dtype: int64
+2023-02-11 12:41:48,820 | INFO | There are 1 GPU(s) available.
+
+These are the available devices:
+2023-02-11 12:41:48,821 | INFO | 	 1 - NVIDIA A100-SXM4-40GB
+2023-02-11 12:41:48,821 | DEBUG | 
+
+==> Selected device is 'cuda' <==
+2023-02-11 12:41:48,821 | DEBUG | Loading tokenizer... [ID:other];[Name:GroNLP/hateBERT]
+2023-02-11 12:41:50,404 | INFO | other tokenizer was loaded successfully (GroNLP/hateBERT)
+	do_lower_case=True
+2023-02-11 12:41:53,745 | INFO | Max sentence length: 467 found at index 13827. Sentence is:
+
+
+So we thought we would have been spared because Father Munyeshyaka had forcefully kissed Hyacinthe, and Hyacinthe had come back crying.  And I told her that maybe the priest felt guilty and wanted to help her.  So *********************** and I told her that probably, on the next day, we would finally be saved. ************************************************************************ ********************** ************************************************************************ ********************************************* And the following day, in the morning, it is that list that they used to put people to death -- that list we ********************************.  But when they went out, I saw Father Munyeshyaka with that list in his hand and I recognised the sheet of paper, **************************************************************, and it is with that list that the Interahamwe killed people.
+
+
+
+2023-02-11 12:42:02,377 | DEBUG | 0) Len of train_index=13754 VS len of val_index=3439
+2023-02-11 12:42:02,398 | DEBUG | 1) Len of train_index=13754 VS len of val_index=3439
+2023-02-11 12:42:02,419 | DEBUG | 2) Len of train_index=13754 VS len of val_index=3439
+2023-02-11 12:42:02,440 | DEBUG | 3) Len of train_index=13755 VS len of val_index=3438
+2023-02-11 12:42:02,461 | DEBUG | 4) Len of train_index=13755 VS len of val_index=3438
+2023-02-11 12:42:08,592 | DEBUG | Optimizer
+2023-02-11 12:42:08,593 | DEBUG | AdamW (
+Parameter Group 0
+    betas: (0.9, 0.999)
+    correct_bias: True
+    eps: 1e-08
+    lr: 1e-06
+    weight_decay: 0.0
+)
+2023-02-11 12:42:08,593 | DEBUG | ==================================================
+2023-02-11 12:42:08,594 | DEBUG | Cross-Validation Split 1/5
+2023-02-11 12:42:08,594 | DEBUG | ==================================================
+2023-02-11 12:42:08,594 | DEBUG | 
+2023-02-11 12:42:08,594 | INFO | ======== Epoch 1 / 3 ========
+2023-02-11 12:42:08,594 | INFO | Training...
+2023-02-11 12:43:19,794 | DEBUG |   Batch   100  of    430.    Elapsed: 0:01:11.
+2023-02-11 12:44:31,501 | DEBUG |   Batch   200  of    430.    Elapsed: 0:02:23.
+2023-02-11 12:45:44,628 | DEBUG |   Batch   300  of    430.    Elapsed: 0:03:36.
+2023-02-11 12:46:59,276 | DEBUG |   Batch   400  of    430.    Elapsed: 0:04:51.
+2023-02-11 12:47:21,818 | INFO | Epoch 1 : 
+            Train_acc : 0.8355309652475775
+            Train_precision (macro, micro): [0.55316336 0.83553097]
+            Train_recall  (macro, micro): [0.5136893  0.83553097]
+            Train_F1 : [0.50634088 0.83553097]
+2023-02-11 12:47:21,819 | DEBUG | 
+2023-02-11 12:47:21,819 | INFO |   Average training loss: 0.42
+2023-02-11 12:47:21,819 | INFO |   Training epoch took: 0:05:13
+2023-02-11 12:47:21,839 | INFO | Classification report. TRAINING at epoch 1 
+               precision    recall  f1-score   support
+
+           0       0.89      0.98      0.93     11894
+           1       0.61      0.22      0.32      1860
+
+    accuracy                           0.88     13754
+   macro avg       0.75      0.60      0.63     13754
+weighted avg       0.85      0.88      0.85     13754
+
+2023-02-11 12:47:21,839 | DEBUG | 
+2023-02-11 12:47:21,839 | INFO | Running Validation...
+2023-02-11 12:47:46,301 | INFO | Epoch 1 : 
+                Valid_acc : 0.9220984179835895
+                Valid_precision (macro, micro): [0.85177479 0.92209842]
+                Valid_recall (macro, micro): [0.83051576 0.92209842]
+                Valid_F1 (macro, micro): [0.84019167 0.92209842]
+2023-02-11 12:47:46,302 | INFO |   Accuracy: 0.93
+2023-02-11 12:47:46,302 | INFO |   Validation Loss: 0.19
+2023-02-11 12:47:46,302 | INFO |   Validation took: 0:00:24
+2023-02-11 12:47:46,310 | INFO | Classification report. VALIDATION at epoch 1 
+               precision    recall  f1-score   support
+
+           0       0.96      0.96      0.96      2988
+           1       0.74      0.71      0.73       451
+
+    accuracy                           0.93      3439
+   macro avg       0.85      0.84      0.84      3439
+weighted avg       0.93      0.93      0.93      3439
+
+2023-02-11 12:47:46,311 | DEBUG | 
+2023-02-11 12:47:46,311 | INFO | ======== Epoch 2 / 3 ========
+2023-02-11 12:47:46,311 | INFO | Training...
+2023-02-11 12:48:56,665 | DEBUG |   Batch   100  of    430.    Elapsed: 0:01:10.
+2023-02-11 12:50:08,480 | DEBUG |   Batch   200  of    430.    Elapsed: 0:02:22.
+2023-02-11 12:51:21,781 | DEBUG |   Batch   300  of    430.    Elapsed: 0:03:35.
+2023-02-11 12:52:36,423 | DEBUG |   Batch   400  of    430.    Elapsed: 0:04:50.
+2023-02-11 12:52:58,973 | INFO | Epoch 2 : 
+            Train_acc : 0.9236520390271934
+            Train_precision (macro, micro): [0.85006625 0.92365204]
+            Train_recall  (macro, micro): [0.80648546 0.92365204]
+            Train_F1 : [0.82590275 0.92365204]
+2023-02-11 12:52:58,974 | DEBUG | 
+2023-02-11 12:52:58,974 | INFO |   Average training loss: 0.31
+2023-02-11 12:52:58,974 | INFO |   Training epoch took: 0:05:13
+2023-02-11 12:52:58,995 | INFO | Classification report. TRAINING at epoch 2 
+               precision    recall  f1-score   support
+
+           0       0.95      0.97      0.96     11894
+           1       0.76      0.66      0.71      1860
+
+    accuracy                           0.93     13754
+   macro avg       0.85      0.82      0.83     13754
+weighted avg       0.92      0.93      0.92     13754
+
+2023-02-11 12:52:58,995 | DEBUG | 
+2023-02-11 12:52:58,996 | INFO | Running Validation...
+2023-02-11 12:53:23,443 | INFO | Epoch 2 : 
+                Valid_acc : 0.9314062862653558
+                Valid_precision (macro, micro): [0.86707529 0.93140629]
+                Valid_recall (macro, micro): [0.82620972 0.93140629]
+                Valid_F1 (macro, micro): [0.84478023 0.93140629]
+2023-02-11 12:53:23,444 | INFO |   Accuracy: 0.94
+2023-02-11 12:53:23,444 | INFO |   Validation Loss: 0.18
+2023-02-11 12:53:23,444 | INFO |   Validation took: 0:00:24
+2023-02-11 12:53:23,451 | INFO | Classification report. VALIDATION at epoch 2 
+               precision    recall  f1-score   support
+
+           0       0.95      0.97      0.96      2988
+           1       0.80      0.69      0.74       451
+
+    accuracy                           0.94      3439
+   macro avg       0.88      0.83      0.85      3439
+weighted avg       0.93      0.94      0.94      3439
+
+2023-02-11 12:53:23,453 | DEBUG | 
+2023-02-11 12:53:23,453 | INFO | ======== Epoch 3 / 3 ========
+2023-02-11 12:53:23,453 | INFO | Training...
+2023-02-11 12:54:33,744 | DEBUG |   Batch   100  of    430.    Elapsed: 0:01:10.
+2023-02-11 12:55:45,425 | DEBUG |   Batch   200  of    430.    Elapsed: 0:02:22.
+2023-02-11 12:56:58,598 | DEBUG |   Batch   300  of    430.    Elapsed: 0:03:35.
+2023-02-11 12:58:13,284 | DEBUG |   Batch   400  of    430.    Elapsed: 0:04:50.
+2023-02-11 12:58:35,870 | INFO | Epoch 3 : 
+            Train_acc : 0.952085489908787
+            Train_precision (macro, micro): [0.90638075 0.95208549]
+            Train_recall  (macro, micro): [0.88391719 0.95208549]
+            Train_F1 : [0.89462011 0.95208549]
+2023-02-11 12:58:35,871 | DEBUG | 
+2023-02-11 12:58:35,871 | INFO |   Average training loss: 0.28
+2023-02-11 12:58:35,871 | INFO |   Training epoch took: 0:05:12
+2023-02-11 12:58:35,892 | INFO | Classification report. TRAINING at epoch 3 
+               precision    recall  f1-score   support
+
+           0       0.97      0.98      0.97     11894
+           1       0.85      0.80      0.82      1860
+
+    accuracy                           0.95     13754
+   macro avg       0.91      0.89      0.90     13754
+weighted avg       0.95      0.95      0.95     13754
+
+2023-02-11 12:58:35,892 | DEBUG | 
+2023-02-11 12:58:35,892 | INFO | Running Validation...
+2023-02-11 12:59:00,354 | INFO | Epoch 3 : 
+                Valid_acc : 0.922639384776298
+                Valid_precision (macro, micro): [0.84638929 0.92263938]
+                Valid_recall (macro, micro): [0.83514332 0.92263938]
+                Valid_F1 (macro, micro): [0.83973224 0.92263938]
+2023-02-11 12:59:00,354 | INFO |   Accuracy: 0.93
+2023-02-11 12:59:00,355 | INFO |   Validation Loss: 0.18
+2023-02-11 12:59:00,355 | INFO |   Validation took: 0:00:24
+2023-02-11 12:59:00,362 | INFO | Classification report. VALIDATION at epoch 3 
+               precision    recall  f1-score   support
+
+           0       0.96      0.96      0.96      2988
+           1       0.74      0.75      0.75       451
+
+    accuracy                           0.93      3439
+   macro avg       0.85      0.86      0.85      3439
+weighted avg       0.93      0.93      0.93      3439
+
+2023-02-11 12:59:00,363 | DEBUG | 
+2023-02-11 12:59:00,363 | INFO | Training complete!
+2023-02-11 12:59:00,363 | INFO | Total training took 0:16:52 (h:mm:ss)
+2023-02-11 12:59:00,364 | DEBUG | ==================================================
+2023-02-11 12:59:00,364 | DEBUG | Cross-Validation Split 2/5
+2023-02-11 12:59:00,364 | DEBUG | ==================================================
+2023-02-11 12:59:00,364 | DEBUG | 
+2023-02-11 12:59:00,365 | INFO | ======== Epoch 1 / 3 ========
+2023-02-11 12:59:00,365 | INFO | Training...
+2023-02-11 13:00:10,630 | DEBUG |   Batch   100  of    430.    Elapsed: 0:01:10.
+2023-02-11 13:01:22,347 | DEBUG |   Batch   200  of    430.    Elapsed: 0:02:22.
+2023-02-11 13:02:35,523 | DEBUG |   Batch   300  of    430.    Elapsed: 0:03:35.
+2023-02-11 13:03:50,215 | DEBUG |   Batch   400  of    430.    Elapsed: 0:04:50.
+2023-02-11 13:04:12,798 | INFO | Epoch 1 : 
+            Train_acc : 0.9535820968893679
+            Train_precision (macro, micro): [0.90500716 0.9535821 ]
+            Train_recall  (macro, micro): [0.89681244 0.9535821 ]
+            Train_F1 : [0.90042481 0.9535821 ]
+2023-02-11 13:04:12,798 | DEBUG | 
+2023-02-11 13:04:12,798 | INFO |   Average training loss: 0.28
+2023-02-11 13:04:12,799 | INFO |   Training epoch took: 0:05:12
+2023-02-11 13:04:12,819 | INFO | Classification report. TRAINING at epoch 1 
+               precision    recall  f1-score   support
+
+           0       0.97      0.98      0.97     11901
+           1       0.85      0.80      0.82      1853
+
+    accuracy                           0.95     13754
+   macro avg       0.91      0.89      0.90     13754
+weighted avg       0.95      0.95      0.95     13754
+
+2023-02-11 13:04:12,820 | DEBUG | 
+2023-02-11 13:04:12,820 | INFO | Running Validation...
+2023-02-11 13:04:37,259 | INFO | Epoch 1 : 
+                Valid_acc : 0.9622260850508885
+                Valid_precision (macro, micro): [0.91648893 0.96222609]
+                Valid_recall (macro, micro): [0.92485579 0.96222609]
+                Valid_F1 (macro, micro): [0.92035433 0.96222609]
+2023-02-11 13:04:37,260 | INFO |   Accuracy: 0.96
+2023-02-11 13:04:37,260 | INFO |   Validation Loss: 0.14
+2023-02-11 13:04:37,260 | INFO |   Validation took: 0:00:24
+2023-02-11 13:04:37,267 | INFO | Classification report. VALIDATION at epoch 1 
+               precision    recall  f1-score   support
+
+           0       0.98      0.98      0.98      2981
+           1       0.85      0.89      0.87       458
+
+    accuracy                           0.96      3439
+   macro avg       0.92      0.93      0.92      3439
+weighted avg       0.97      0.96      0.96      3439
+
+2023-02-11 13:04:37,269 | DEBUG | 
+2023-02-11 13:04:37,269 | INFO | ======== Epoch 2 / 3 ========
+2023-02-11 13:04:37,269 | INFO | Training...
+2023-02-11 13:05:47,541 | DEBUG |   Batch   100  of    430.    Elapsed: 0:01:10.
+2023-02-11 13:06:59,252 | DEBUG |   Batch   200  of    430.    Elapsed: 0:02:22.
+2023-02-11 13:08:12,415 | DEBUG |   Batch   300  of    430.    Elapsed: 0:03:35.
+2023-02-11 13:09:27,146 | DEBUG |   Batch   400  of    430.    Elapsed: 0:04:50.
+2023-02-11 13:09:49,715 | INFO | Epoch 2 : 
+            Train_acc : 0.9636449552806584
+            Train_precision (macro, micro): [0.92840515 0.96364496]
+            Train_recall  (macro, micro): [0.91490819 0.96364496]
+            Train_F1 : [0.92146366 0.96364496]
+2023-02-11 13:09:49,715 | DEBUG | 
+2023-02-11 13:09:49,715 | INFO |   Average training loss: 0.26
+2023-02-11 13:09:49,716 | INFO |   Training epoch took: 0:05:12
+2023-02-11 13:09:49,735 | INFO | Classification report. TRAINING at epoch 2 
+               precision    recall  f1-score   support
+
+           0       0.98      0.98      0.98     11901
+           1       0.89      0.85      0.87      1853
+
+    accuracy                           0.97     13754
+   macro avg       0.93      0.92      0.93     13754
+weighted avg       0.97      0.97      0.97     13754
+
+2023-02-11 13:09:49,735 | DEBUG | 
+2023-02-11 13:09:49,735 | INFO | Running Validation...
+2023-02-11 13:10:14,197 | INFO | Epoch 2 : 
+                Valid_acc : 0.9573719298964066
+                Valid_precision (macro, micro): [0.91095055 0.95737193]
+                Valid_recall (macro, micro): [0.90975858 0.95737193]
+                Valid_F1 (macro, micro): [0.91026627 0.95737193]
+2023-02-11 13:10:14,198 | INFO |   Accuracy: 0.96
+2023-02-11 13:10:14,198 | INFO |   Validation Loss: 0.13
+2023-02-11 13:10:14,198 | INFO |   Validation took: 0:00:24
+2023-02-11 13:10:14,206 | INFO | Classification report. VALIDATION at epoch 2 
+               precision    recall  f1-score   support
+
+           0       0.98      0.98      0.98      2981
+           1       0.87      0.85      0.86       458
+
+    accuracy                           0.96      3439
+   macro avg       0.92      0.92      0.92      3439
+weighted avg       0.96      0.96      0.96      3439
+
+2023-02-11 13:10:14,207 | DEBUG | 
+2023-02-11 13:10:14,207 | INFO | ======== Epoch 3 / 3 ========
+2023-02-11 13:10:14,207 | INFO | Training...
+2023-02-11 13:11:24,454 | DEBUG |   Batch   100  of    430.    Elapsed: 0:01:10.
+2023-02-11 13:12:36,120 | DEBUG |   Batch   200  of    430.    Elapsed: 0:02:22.
+2023-02-11 13:13:49,233 | DEBUG |   Batch   300  of    430.    Elapsed: 0:03:35.
+2023-02-11 13:15:03,965 | DEBUG |   Batch   400  of    430.    Elapsed: 0:04:50.
+2023-02-11 13:15:26,556 | INFO | Epoch 3 : 
+            Train_acc : 0.9783354390601711
+            Train_precision (macro, micro): [0.96107453 0.97833544]
+            Train_recall  (macro, micro): [0.94641301 0.97833544]
+            Train_F1 : [0.95352596 0.97833544]
+2023-02-11 13:15:26,557 | DEBUG | 
+2023-02-11 13:15:26,557 | INFO |   Average training loss: 0.24
+2023-02-11 13:15:26,557 | INFO |   Training epoch took: 0:05:12
+2023-02-11 13:15:26,578 | INFO | Classification report. TRAINING at epoch 3 
+               precision    recall  f1-score   support
+
+           0       0.99      0.99      0.99     11901
+           1       0.94      0.91      0.92      1853
+
+    accuracy                           0.98     13754
+   macro avg       0.96      0.95      0.96     13754
+weighted avg       0.98      0.98      0.98     13754
+
+2023-02-11 13:15:26,578 | DEBUG | 
+2023-02-11 13:15:26,578 | INFO | Running Validation...
+2023-02-11 13:15:51,014 | INFO | Epoch 3 : 
+                Valid_acc : 0.9633666549222986
+                Valid_precision (macro, micro): [0.92641842 0.96336665]
+                Valid_recall (macro, micro): [0.909263   0.96336665]
+                Valid_F1 (macro, micro): [0.9170846  0.96336665]
+2023-02-11 13:15:51,015 | INFO |   Accuracy: 0.96
+2023-02-11 13:15:51,015 | INFO |   Validation Loss: 0.13
+2023-02-11 13:15:51,016 | INFO |   Validation took: 0:00:24
+2023-02-11 13:15:51,023 | INFO | Classification report. VALIDATION at epoch 3 
+               precision    recall  f1-score   support
+
+           0       0.97      0.98      0.98      2981
+           1       0.87      0.83      0.85       458
+
+    accuracy                           0.96      3439
+   macro avg       0.92      0.91      0.91      3439
+weighted avg       0.96      0.96      0.96      3439
+
+2023-02-11 13:15:51,023 | DEBUG | 
+2023-02-11 13:15:51,024 | INFO | Training complete!
+2023-02-11 13:15:51,024 | INFO | Total training took 0:16:51 (h:mm:ss)
+2023-02-11 13:15:51,024 | DEBUG | ==================================================
+2023-02-11 13:15:51,025 | DEBUG | Cross-Validation Split 3/5
+2023-02-11 13:15:51,025 | DEBUG | ==================================================
+2023-02-11 13:15:51,025 | DEBUG | 
+2023-02-11 13:15:51,025 | INFO | ======== Epoch 1 / 3 ========
+2023-02-11 13:15:51,025 | INFO | Training...
+2023-02-11 13:17:01,292 | DEBUG |   Batch   100  of    430.    Elapsed: 0:01:10.
+2023-02-11 13:18:13,024 | DEBUG |   Batch   200  of    430.    Elapsed: 0:02:22.
+2023-02-11 13:19:26,169 | DEBUG |   Batch   300  of    430.    Elapsed: 0:03:35.
+2023-02-11 13:20:40,837 | DEBUG |   Batch   400  of    430.    Elapsed: 0:04:50.
+2023-02-11 13:21:03,424 | INFO | Epoch 1 : 
+            Train_acc : 0.9750630048681258
+            Train_precision (macro, micro): [0.95419679 0.975063  ]
+            Train_recall  (macro, micro): [0.94047587 0.975063  ]
+            Train_F1 : [0.94713673 0.975063  ]
+2023-02-11 13:21:03,425 | DEBUG | 
+2023-02-11 13:21:03,425 | INFO |   Average training loss: 0.25
+2023-02-11 13:21:03,425 | INFO |   Training epoch took: 0:05:12
+2023-02-11 13:21:03,446 | INFO | Classification report. TRAINING at epoch 1 
+               precision    recall  f1-score   support
+
+           0       0.98      0.99      0.99     11906
+           1       0.92      0.89      0.90      1848
+
+    accuracy                           0.97     13754
+   macro avg       0.95      0.94      0.94     13754
+weighted avg       0.97      0.97      0.97     13754
+
+2023-02-11 13:21:03,446 | DEBUG | 
+2023-02-11 13:21:03,446 | INFO | Running Validation...
+2023-02-11 13:21:27,879 | INFO | Epoch 1 : 
+                Valid_acc : 0.9873657055663059
+                Valid_precision (macro, micro): [0.97578077 0.98736571]
+                Valid_recall (macro, micro): [0.97154783 0.98736571]
+                Valid_F1 (macro, micro): [0.97359811 0.98736571]
+2023-02-11 13:21:27,879 | INFO |   Accuracy: 0.99
+2023-02-11 13:21:27,880 | INFO |   Validation Loss: 0.09
+2023-02-11 13:21:27,880 | INFO |   Validation took: 0:00:24
+2023-02-11 13:21:27,887 | INFO | Classification report. VALIDATION at epoch 1 
+               precision    recall  f1-score   support
+
+           0       0.99      0.99      0.99      2976
+           1       0.95      0.94      0.95       463
+
+    accuracy                           0.99      3439
+   macro avg       0.97      0.97      0.97      3439
+weighted avg       0.99      0.99      0.99      3439
+
+2023-02-11 13:21:27,888 | DEBUG | 
+2023-02-11 13:21:27,888 | INFO | ======== Epoch 2 / 3 ========
+2023-02-11 13:21:27,888 | INFO | Training...
+2023-02-11 13:22:38,129 | DEBUG |   Batch   100  of    430.    Elapsed: 0:01:10.
+2023-02-11 13:23:49,824 | DEBUG |   Batch   200  of    430.    Elapsed: 0:02:22.
+2023-02-11 13:25:02,998 | DEBUG |   Batch   300  of    430.    Elapsed: 0:03:35.
+2023-02-11 13:26:17,666 | DEBUG |   Batch   400  of    430.    Elapsed: 0:04:50.
+2023-02-11 13:26:40,233 | INFO | Epoch 2 : 
+            Train_acc : 0.9855090339049731
+            Train_precision (macro, micro): [0.9693388  0.98550903]
+            Train_recall  (macro, micro): [0.96761605 0.98550903]
+            Train_F1 : [0.96840332 0.98550903]
+2023-02-11 13:26:40,233 | DEBUG | 
+2023-02-11 13:26:40,234 | INFO |   Average training loss: 0.23
+2023-02-11 13:26:40,234 | INFO |   Training epoch took: 0:05:12
+2023-02-11 13:26:40,254 | INFO | Classification report. TRAINING at epoch 2 
+               precision    recall  f1-score   support
+
+           0       0.99      0.99      0.99     11906
+           1       0.95      0.94      0.94      1848
+
+    accuracy                           0.98     13754
+   macro avg       0.97      0.97      0.97     13754
+weighted avg       0.98      0.98      0.98     13754
+
+2023-02-11 13:26:40,255 | DEBUG | 
+2023-02-11 13:26:40,255 | INFO | Running Validation...
+2023-02-11 13:27:04,702 | INFO | Epoch 2 : 
+                Valid_acc : 0.9824486972102415
+                Valid_precision (macro, micro): [0.96314553 0.9824487 ]
+                Valid_recall (macro, micro): [0.958052  0.9824487]
+                Valid_F1 (macro, micro): [0.96046719 0.9824487 ]
+2023-02-11 13:27:04,703 | INFO |   Accuracy: 0.98
+2023-02-11 13:27:04,703 | INFO |   Validation Loss: 0.09
+2023-02-11 13:27:04,703 | INFO |   Validation took: 0:00:24
+2023-02-11 13:27:04,710 | INFO | Classification report. VALIDATION at epoch 2 
+               precision    recall  f1-score   support
+
+           0       0.99      0.99      0.99      2976
+           1       0.96      0.92      0.94       463
+
+    accuracy                           0.98      3439
+   macro avg       0.97      0.96      0.97      3439
+weighted avg       0.98      0.98      0.98      3439
+
+2023-02-11 13:27:04,711 | DEBUG | 
+2023-02-11 13:27:04,712 | INFO | ======== Epoch 3 / 3 ========
+2023-02-11 13:27:04,712 | INFO | Training...
+2023-02-11 13:28:14,975 | DEBUG |   Batch   100  of    430.    Elapsed: 0:01:10.
+2023-02-11 13:29:26,704 | DEBUG |   Batch   200  of    430.    Elapsed: 0:02:22.
+2023-02-11 13:30:39,842 | DEBUG |   Batch   300  of    430.    Elapsed: 0:03:35.
+2023-02-11 13:31:54,496 | DEBUG |   Batch   400  of    430.    Elapsed: 0:04:50.
+2023-02-11 13:32:17,049 | INFO | Epoch 3 : 
+            Train_acc : 0.9893299358265193
+            Train_precision (macro, micro): [0.97793562 0.98932994]
+            Train_recall  (macro, micro): [0.97764467 0.98932994]
+            Train_F1 : [0.97776855 0.98932994]
+2023-02-11 13:32:17,050 | DEBUG | 
+2023-02-11 13:32:17,050 | INFO |   Average training loss: 0.22
+2023-02-11 13:32:17,050 | INFO |   Training epoch took: 0:05:12
+2023-02-11 13:32:17,071 | INFO | Classification report. TRAINING at epoch 3 
+               precision    recall  f1-score   support
+
+           0       0.99      0.99      0.99     11906
+           1       0.96      0.96      0.96      1848
+
+    accuracy                           0.99     13754
+   macro avg       0.98      0.98      0.98     13754
+weighted avg       0.99      0.99      0.99     13754
+
+2023-02-11 13:32:17,071 | DEBUG | 
+2023-02-11 13:32:17,071 | INFO | Running Validation...
+2023-02-11 13:32:41,510 | INFO | Epoch 3 : 
+                Valid_acc : 0.9818520208488821
+                Valid_precision (macro, micro): [0.95927478 0.98185202]
+                Valid_recall (macro, micro): [0.97175092 0.98185202]
+                Valid_F1 (macro, micro): [0.96532503 0.98185202]
+2023-02-11 13:32:41,511 | INFO |   Accuracy: 0.98
+2023-02-11 13:32:41,511 | INFO |   Validation Loss: 0.09
+2023-02-11 13:32:41,511 | INFO |   Validation took: 0:00:24
+2023-02-11 13:32:41,518 | INFO | Classification report. VALIDATION at epoch 3 
+               precision    recall  f1-score   support
+
+           0       0.99      0.99      0.99      2976
+           1       0.93      0.95      0.94       463
+
+    accuracy                           0.98      3439
+   macro avg       0.96      0.97      0.96      3439
+weighted avg       0.98      0.98      0.98      3439
+
+2023-02-11 13:32:41,519 | DEBUG | 
+2023-02-11 13:32:41,519 | INFO | Training complete!
+2023-02-11 13:32:41,519 | INFO | Total training took 0:16:50 (h:mm:ss)
+2023-02-11 13:32:41,520 | DEBUG | ==================================================
+2023-02-11 13:32:41,520 | DEBUG | Cross-Validation Split 4/5
+2023-02-11 13:32:41,520 | DEBUG | ==================================================
+2023-02-11 13:32:41,520 | DEBUG | 
+2023-02-11 13:32:41,521 | INFO | ======== Epoch 1 / 3 ========
+2023-02-11 13:32:41,521 | INFO | Training...
+2023-02-11 13:33:51,745 | DEBUG |   Batch   100  of    430.    Elapsed: 0:01:10.
+2023-02-11 13:35:03,421 | DEBUG |   Batch   200  of    430.    Elapsed: 0:02:22.
+2023-02-11 13:36:16,597 | DEBUG |   Batch   300  of    430.    Elapsed: 0:03:35.
+2023-02-11 13:37:31,285 | DEBUG |   Batch   400  of    430.    Elapsed: 0:04:50.
+2023-02-11 13:37:53,869 | INFO | Epoch 1 : 
+            Train_acc : 0.9871807374009257
+            Train_precision (macro, micro): [0.9742863  0.98718074]
+            Train_recall  (macro, micro): [0.97112661 0.98718074]
+            Train_F1 : [0.97268824 0.98718074]
+2023-02-11 13:37:53,870 | DEBUG | 
+2023-02-11 13:37:53,870 | INFO |   Average training loss: 0.23
+2023-02-11 13:37:53,870 | INFO |   Training epoch took: 0:05:12
+2023-02-11 13:37:53,891 | INFO | Classification report. TRAINING at epoch 1 
+               precision    recall  f1-score   support
+
+           0       0.99      0.99      0.99     11924
+           1       0.95      0.94      0.95      1831
+
+    accuracy                           0.99     13755
+   macro avg       0.97      0.97      0.97     13755
+weighted avg       0.99      0.99      0.99     13755
+
+2023-02-11 13:37:53,892 | DEBUG | 
+2023-02-11 13:37:53,892 | INFO | Running Validation...
+2023-02-11 13:38:18,332 | INFO | Epoch 1 : 
+                Valid_acc : 0.9955222270032181
+                Valid_precision (macro, micro): [0.98595722 0.99552223]
+                Valid_recall (macro, micro): [0.99555135 0.99552223]
+                Valid_F1 (macro, micro): [0.99067543 0.99552223]
+2023-02-11 13:38:18,333 | INFO |   Accuracy: 0.99
+2023-02-11 13:38:18,333 | INFO |   Validation Loss: 0.07
+2023-02-11 13:38:18,333 | INFO |   Validation took: 0:00:24
+2023-02-11 13:38:18,340 | INFO | Classification report. VALIDATION at epoch 1 
+               precision    recall  f1-score   support
+
+           0       1.00      0.99      1.00      2958
+           1       0.96      0.99      0.98       480
+
+    accuracy                           0.99      3438
+   macro avg       0.98      0.99      0.99      3438
+weighted avg       0.99      0.99      0.99      3438
+
+2023-02-11 13:38:18,342 | DEBUG | 
+2023-02-11 13:38:18,342 | INFO | ======== Epoch 2 / 3 ========
+2023-02-11 13:38:18,342 | INFO | Training...
+2023-02-11 13:39:28,632 | DEBUG |   Batch   100  of    430.    Elapsed: 0:01:10.
+2023-02-11 13:40:40,359 | DEBUG |   Batch   200  of    430.    Elapsed: 0:02:22.
+2023-02-11 13:41:53,498 | DEBUG |   Batch   300  of    430.    Elapsed: 0:03:35.
+2023-02-11 13:43:08,240 | DEBUG |   Batch   400  of    430.    Elapsed: 0:04:50.
+2023-02-11 13:43:30,837 | INFO | Epoch 2 : 
+            Train_acc : 0.9898819663015491
+            Train_precision (macro, micro): [0.97831897 0.98988197]
+            Train_recall  (macro, micro): [0.97805075 0.98988197]
+            Train_F1 : [0.97817634 0.98988197]
+2023-02-11 13:43:30,838 | DEBUG | 
+2023-02-11 13:43:30,838 | INFO |   Average training loss: 0.22
+2023-02-11 13:43:30,838 | INFO |   Training epoch took: 0:05:12
+2023-02-11 13:43:30,859 | INFO | Classification report. TRAINING at epoch 2 
+               precision    recall  f1-score   support
+
+           0       0.99      1.00      0.99     11924
+           1       0.97      0.96      0.96      1831
+
+    accuracy                           0.99     13755
+   macro avg       0.98      0.98      0.98     13755
+weighted avg       0.99      0.99      0.99     13755
+
+2023-02-11 13:43:30,859 | DEBUG | 
+2023-02-11 13:43:30,859 | INFO | Running Validation...
+2023-02-11 13:43:55,295 | INFO | Epoch 2 : 
+                Valid_acc : 0.9927533087244163
+                Valid_precision (macro, micro): [0.9915079  0.99275331]
+                Valid_recall (macro, micro): [0.97903228 0.99275331]
+                Valid_F1 (macro, micro): [0.98500231 0.99275331]
+2023-02-11 13:43:55,295 | INFO |   Accuracy: 1.00
+2023-02-11 13:43:55,295 | INFO |   Validation Loss: 0.06
+2023-02-11 13:43:55,295 | INFO |   Validation took: 0:00:24
+2023-02-11 13:43:55,303 | INFO | Classification report. VALIDATION at epoch 2 
+               precision    recall  f1-score   support
+
+           0       1.00      1.00      1.00      2958
+           1       0.98      0.98      0.98       480
+
+    accuracy                           1.00      3438
+   macro avg       0.99      0.99      0.99      3438
+weighted avg       1.00      1.00      1.00      3438
+
+2023-02-11 13:43:55,305 | DEBUG | 
+2023-02-11 13:43:55,305 | INFO | ======== Epoch 3 / 3 ========
+2023-02-11 13:43:55,305 | INFO | Training...
+2023-02-11 13:45:05,561 | DEBUG |   Batch   100  of    430.    Elapsed: 0:01:10.
+2023-02-11 13:46:17,304 | DEBUG |   Batch   200  of    430.    Elapsed: 0:02:22.
+2023-02-11 13:47:30,499 | DEBUG |   Batch   300  of    430.    Elapsed: 0:03:35.
+2023-02-11 13:48:45,186 | DEBUG |   Batch   400  of    430.    Elapsed: 0:04:50.
+2023-02-11 13:49:07,782 | INFO | Epoch 3 : 
+            Train_acc : 0.9944393277660785
+            Train_precision (macro, micro): [0.98927003 0.99443933]
+            Train_recall  (macro, micro): [0.98616496 0.99443933]
+            Train_F1 : [0.98770427 0.99443933]
+2023-02-11 13:49:07,783 | DEBUG | 
+2023-02-11 13:49:07,783 | INFO |   Average training loss: 0.21
+2023-02-11 13:49:07,783 | INFO |   Training epoch took: 0:05:12
+2023-02-11 13:49:07,804 | INFO | Classification report. TRAINING at epoch 3 
+               precision    recall  f1-score   support
+
+           0       1.00      1.00      1.00     11924
+           1       0.98      0.97      0.98      1831
+
+    accuracy                           0.99     13755
+   macro avg       0.99      0.99      0.99     13755
+weighted avg       0.99      0.99      0.99     13755
+
+2023-02-11 13:49:07,804 | DEBUG | 
+2023-02-11 13:49:07,804 | INFO | Running Validation...
+2023-02-11 13:49:32,245 | INFO | Epoch 3 : 
+                Valid_acc : 0.9937536376512704
+                Valid_precision (macro, micro): [0.98471723 0.99375364]
+                Valid_recall (macro, micro): [0.99044998 0.99375364]
+                Valid_F1 (macro, micro): [0.98748015 0.99375364]
+2023-02-11 13:49:32,245 | INFO |   Accuracy: 1.00
+2023-02-11 13:49:32,246 | INFO |   Validation Loss: 0.06
+2023-02-11 13:49:32,246 | INFO |   Validation took: 0:00:24
+2023-02-11 13:49:32,253 | INFO | Classification report. VALIDATION at epoch 3 
+               precision    recall  f1-score   support
+
+           0       1.00      1.00      1.00      2958
+           1       0.98      0.99      0.98       480
+
+    accuracy                           1.00      3438
+   macro avg       0.99      0.99      0.99      3438
+weighted avg       1.00      1.00      1.00      3438
+
+2023-02-11 13:49:32,254 | DEBUG | 
+2023-02-11 13:49:32,254 | INFO | Training complete!
+2023-02-11 13:49:32,254 | INFO | Total training took 0:16:51 (h:mm:ss)
+2023-02-11 13:49:32,255 | DEBUG | ==================================================
+2023-02-11 13:49:32,255 | DEBUG | Cross-Validation Split 5/5
+2023-02-11 13:49:32,255 | DEBUG | ==================================================
+2023-02-11 13:49:32,256 | DEBUG | 
+2023-02-11 13:49:32,256 | INFO | ======== Epoch 1 / 3 ========
+2023-02-11 13:49:32,256 | INFO | Training...
+2023-02-11 13:50:42,499 | DEBUG |   Batch   100  of    430.    Elapsed: 0:01:10.
+2023-02-11 13:51:54,175 | DEBUG |   Batch   200  of    430.    Elapsed: 0:02:22.
+2023-02-11 13:53:07,315 | DEBUG |   Batch   300  of    430.    Elapsed: 0:03:35.
+2023-02-11 13:54:21,943 | DEBUG |   Batch   400  of    430.    Elapsed: 0:04:50.
+2023-02-11 13:54:44,488 | INFO | Epoch 1 : 
+            Train_acc : 0.9915640505361414
+            Train_precision (macro, micro): [0.98349299 0.99156405]
+            Train_recall  (macro, micro): [0.98057019 0.99156405]
+            Train_F1 : [0.98202121 0.99156405]
+2023-02-11 13:54:44,489 | DEBUG | 
+2023-02-11 13:54:44,489 | INFO |   Average training loss: 0.22
+2023-02-11 13:54:44,489 | INFO |   Training epoch took: 0:05:12
+2023-02-11 13:54:44,513 | INFO | Classification report. TRAINING at epoch 1 
+               precision    recall  f1-score   support
+
+           0       0.99      1.00      1.00     11903
+           1       0.97      0.97      0.97      1852
+
+    accuracy                           0.99     13755
+   macro avg       0.98      0.98      0.98     13755
+weighted avg       0.99      0.99      0.99     13755
+
+2023-02-11 13:54:44,514 | DEBUG | 
+2023-02-11 13:54:44,514 | INFO | Running Validation...
+2023-02-11 13:55:08,935 | INFO | Epoch 1 : 
+                Valid_acc : 0.9973426303616002
+                Valid_precision (macro, micro): [0.99235327 0.99734263]
+                Valid_recall (macro, micro): [0.99688951 0.99734263]
+                Valid_F1 (macro, micro): [0.99460292 0.99734263]
+2023-02-11 13:55:08,936 | INFO |   Accuracy: 1.00
+2023-02-11 13:55:08,936 | INFO |   Validation Loss: 0.06
+2023-02-11 13:55:08,936 | INFO |   Validation took: 0:00:24
+2023-02-11 13:55:08,943 | INFO | Classification report. VALIDATION at epoch 1 
+               precision    recall  f1-score   support
+
+           0       1.00      1.00      1.00      2979
+           1       0.98      1.00      0.99       459
+
+    accuracy                           1.00      3438
+   macro avg       0.99      1.00      0.99      3438
+weighted avg       1.00      1.00      1.00      3438
+
+2023-02-11 13:55:08,944 | DEBUG | 
+2023-02-11 13:55:08,945 | INFO | ======== Epoch 2 / 3 ========
+2023-02-11 13:55:08,945 | INFO | Training...
+2023-02-11 13:56:19,159 | DEBUG |   Batch   100  of    430.    Elapsed: 0:01:10.
+2023-02-11 13:57:30,845 | DEBUG |   Batch   200  of    430.    Elapsed: 0:02:22.
+2023-02-11 13:58:44,018 | DEBUG |   Batch   300  of    430.    Elapsed: 0:03:35.
+2023-02-11 13:59:58,670 | DEBUG |   Batch   400  of    430.    Elapsed: 0:04:50.
+2023-02-11 14:00:21,232 | INFO | Epoch 2 : 
+            Train_acc : 0.993726688075505
+            Train_precision (macro, micro): [0.98593148 0.99372669]
+            Train_recall  (macro, micro): [0.98669204 0.99372669]
+            Train_F1 : [0.98629655 0.99372669]
+2023-02-11 14:00:21,232 | DEBUG | 
+2023-02-11 14:00:21,233 | INFO |   Average training loss: 0.21
+2023-02-11 14:00:21,233 | INFO |   Training epoch took: 0:05:12
+2023-02-11 14:00:21,253 | INFO | Classification report. TRAINING at epoch 2 
+               precision    recall  f1-score   support
+
+           0       1.00      1.00      1.00     11903
+           1       0.98      0.98      0.98      1852
+
+    accuracy                           0.99     13755
+   macro avg       0.99      0.99      0.99     13755
+weighted avg       0.99      0.99      0.99     13755
+
+2023-02-11 14:00:21,253 | DEBUG | 
+2023-02-11 14:00:21,253 | INFO | Running Validation...
+2023-02-11 14:00:45,670 | INFO | Epoch 2 : 
+                Valid_acc : 0.9959415413715943
+                Valid_precision (macro, micro): [0.98923862 0.99594154]
+                Valid_recall (macro, micro): [0.99393873 0.99594154]
+                Valid_F1 (macro, micro): [0.9915653  0.99594154]
+2023-02-11 14:00:45,671 | INFO |   Accuracy: 1.00
+2023-02-11 14:00:45,671 | INFO |   Validation Loss: 0.05
+2023-02-11 14:00:45,671 | INFO |   Validation took: 0:00:24
+2023-02-11 14:00:45,678 | INFO | Classification report. VALIDATION at epoch 2 
+               precision    recall  f1-score   support
+
+           0       1.00      1.00      1.00      2979
+           1       0.99      1.00      0.99       459
+
+    accuracy                           1.00      3438
+   macro avg       0.99      1.00      0.99      3438
+weighted avg       1.00      1.00      1.00      3438
+
+2023-02-11 14:00:45,679 | DEBUG | 
+2023-02-11 14:00:45,680 | INFO | ======== Epoch 3 / 3 ========
+2023-02-11 14:00:45,680 | INFO | Training...
+2023-02-11 14:01:55,922 | DEBUG |   Batch   100  of    430.    Elapsed: 0:01:10.
+2023-02-11 14:03:07,657 | DEBUG |   Batch   200  of    430.    Elapsed: 0:02:22.
+2023-02-11 14:04:20,873 | DEBUG |   Batch   300  of    430.    Elapsed: 0:03:35.
+2023-02-11 14:05:35,593 | DEBUG |   Batch   400  of    430.    Elapsed: 0:04:50.
+2023-02-11 14:05:58,178 | INFO | Epoch 3 : 
+            Train_acc : 0.9961402573034716
+            Train_precision (macro, micro): [0.99132591 0.99614026]
+            Train_recall  (macro, micro): [0.99214641 0.99614026]
+            Train_F1 : [0.99173268 0.99614026]
+2023-02-11 14:05:58,178 | DEBUG | 
+2023-02-11 14:05:58,178 | INFO |   Average training loss: 0.21
+2023-02-11 14:05:58,179 | INFO |   Training epoch took: 0:05:12
+2023-02-11 14:05:58,200 | INFO | Classification report. TRAINING at epoch 3 
+               precision    recall  f1-score   support
+
+           0       1.00      1.00      1.00     11903
+           1       0.98      0.98      0.98      1852
+
+    accuracy                           0.99     13755
+   macro avg       0.99      0.99      0.99     13755
+weighted avg       0.99      0.99      0.99     13755
+
+2023-02-11 14:05:58,200 | DEBUG | 
+2023-02-11 14:05:58,200 | INFO | Running Validation...
+2023-02-11 14:06:22,632 | INFO | Epoch 3 : 
+                Valid_acc : 0.9980414949096136
+                Valid_precision (macro, micro): [0.99649105 0.99804149]
+                Valid_recall (macro, micro): [0.994836   0.99804149]
+                Valid_F1 (macro, micro): [0.99564693 0.99804149]
+2023-02-11 14:06:22,632 | INFO |   Accuracy: 1.00
+2023-02-11 14:06:22,633 | INFO |   Validation Loss: 0.05
+2023-02-11 14:06:22,633 | INFO |   Validation took: 0:00:24
+2023-02-11 14:06:22,640 | INFO | Classification report. VALIDATION at epoch 3 
+               precision    recall  f1-score   support
+
+           0       1.00      1.00      1.00      2979
+           1       0.99      0.99      0.99       459
+
+    accuracy                           1.00      3438
+   macro avg       0.99      1.00      0.99      3438
+weighted avg       1.00      1.00      1.00      3438
+
+2023-02-11 14:06:22,641 | DEBUG | 
+2023-02-11 14:06:22,641 | INFO | Training complete!
+2023-02-11 14:06:22,641 | INFO | Total training took 0:16:50 (h:mm:ss)
+2023-02-11 14:06:22,735 | INFO | To execute testing of the model on test_data
+2023-02-11 14:06:22,736 | INFO | There are 1 GPU(s) available.
+
+These are the available devices:
+2023-02-11 14:06:22,736 | INFO | 	 1 - NVIDIA A100-SXM4-40GB
+2023-02-11 14:06:22,736 | DEBUG | Running Testing...
+2023-02-11 14:06:36,133 | INFO | 
+        Test_acc : 0.935545372449937
+        Test_precision (macro, micro): [0.86325781 0.93554537]
+        Test_recall (macro, micro): [0.85600033 0.93554537]
+        Test_F1 (macro, micro): [0.85809145 0.93554537]
+2023-02-11 14:06:36,134 | INFO |   Accuracy: 0.93
+2023-02-11 14:06:36,134 | INFO |   Test Loss: 0.23
+2023-02-11 14:06:36,134 | INFO |   Test took: 0:00:13
+2023-02-11 14:06:36,140 | INFO | Classification report. TEST 
+               precision    recall  f1-score   support
+
+           0       0.96      0.96      0.96      1654
+           1       0.76      0.72      0.74       257
+
+    accuracy                           0.93      1911
+   macro avg       0.86      0.84      0.85      1911
+weighted avg       0.93      0.93      0.93      1911
+
+2023-02-11 14:06:36,141 | INFO | From binary classification we present the following statistics: [[{'epoch': 1, 'Training Loss': 0.41788234877031905, 'Training Accur.': 0.8355309652475775, 'Training Precision (macro)': 0.5531633629872056, 'Training Precision (micro)': 0.8355309652475775, 'Training Recall (macro)': 0.5136892967073171, 'Training Recall (micro)': 0.8355309652475775, 'Training F1 (macro)': 0.5063408829671354, 'Training F1 (micro)': 0.8355309652475775, 'Valid. Loss': 0.19105127019186816, 'Valid. Accur.': 0.9299768518518519, 'Valid. Precision (macro)': 0.8517747919270268, 'Valid. Precision (micro)': 0.9220984179835895, 'Valid. Recall (macro)': 0.8305157630023485, 'Valid. Recall (micro)': 0.9220984179835895, 'Valid. F1 (macro)': 0.8401916697884412, 'Valid. F1 (micro)': 0.9220984179835895, 'Training Time': '0:05:13', 'Validation Time': '0:00:24'}, {'epoch': 2, 'Training Loss': 0.3136589441188546, 'Training Accur.': 0.9236520390271934, 'Training Precision (macro)': 0.850066254241595, 'Training Precision (micro)': 0.9236520390271934, 'Training Recall (macro)': 0.8064854612135333, 'Training Recall (micro)': 0.9236520390271934, 'Training F1 (macro)': 0.8259027530260418, 'Training F1 (micro)': 0.9236520390271934, 'Valid. Loss': 0.1795446584691052, 'Valid. Accur.': 0.9371720679012346, 'Valid. Precision (macro)': 0.867075289835641, 'Valid. Precision (micro)': 0.9314062862653558, 'Valid. Recall (macro)': 0.8262097155366818, 'Valid. Recall (micro)': 0.9314062862653558, 'Valid. F1 (macro)': 0.8447802260141564, 'Valid. F1 (micro)': 0.9314062862653558, 'Training Time': '0:05:13', 'Validation Time': '0:00:24'}, {'epoch': 3, 'Training Loss': 0.27605989814497706, 'Training Accur.': 0.952085489908787, 'Training Precision (macro)': 0.9063807496613318, 'Training Precision (micro)': 0.952085489908787, 'Training Recall (macro)': 0.88391719441401, 'Training Recall (micro)': 0.952085489908787, 'Training F1 (macro)': 0.8946201099369873, 'Training F1 (micro)': 0.952085489908787, 'Valid. Loss': 0.17942625546345004, 'Valid. Accur.': 0.9331597222222222, 'Valid. Precision (macro)': 0.8463892874693552, 'Valid. Precision (micro)': 0.922639384776298, 'Valid. Recall (macro)': 0.8351433163653328, 'Valid. Recall (micro)': 0.922639384776298, 'Valid. F1 (macro)': 0.8397322439474584, 'Valid. F1 (micro)': 0.922639384776298, 'Training Time': '0:05:12', 'Validation Time': '0:00:24'}], [{'epoch': 1, 'Training Loss': 0.2769553460354029, 'Training Accur.': 0.9535820968893679, 'Training Precision (macro)': 0.9050071559760323, 'Training Precision (micro)': 0.9535820968893679, 'Training Recall (macro)': 0.8968124376610144, 'Training Recall (micro)': 0.9535820968893679, 'Training F1 (macro)': 0.9004248119679432, 'Training F1 (micro)': 0.9535820968893679, 'Valid. Loss': 0.13639691096075154, 'Valid. Accur.': 0.9640817901234568, 'Valid. Precision (macro)': 0.9164889319961114, 'Valid. Precision (micro)': 0.9622260850508885, 'Valid. Recall (macro)': 0.9248557892579233, 'Valid. Recall (micro)': 0.9622260850508885, 'Valid. F1 (macro)': 0.9203543300009808, 'Valid. F1 (micro)': 0.9622260850508885, 'Training Time': '0:05:12', 'Validation Time': '0:00:24'}, {'epoch': 2, 'Training Loss': 0.26088675918967225, 'Training Accur.': 0.9636449552806584, 'Training Precision (macro)': 0.9284051478430158, 'Training Precision (micro)': 0.9636449552806584, 'Training Recall (macro)': 0.9149081919416076, 'Training Recall (micro)': 0.9636449552806584, 'Training F1 (macro)': 0.9214636624304762, 'Training F1 (micro)': 0.9636449552806584, 'Valid. Loss': 0.13176543886462846, 'Valid. Accur.': 0.9626350308641975, 'Valid. Precision (macro)': 0.9109505532384722, 'Valid. Precision (micro)': 0.9573719298964066, 'Valid. Recall (macro)': 0.9097585824583151, 'Valid. Recall (micro)': 0.9573719298964066, 'Valid. F1 (macro)': 0.9102662720339133, 'Valid. F1 (micro)': 0.9573719298964066, 'Training Time': '0:05:12', 'Validation Time': '0:00:24'}, {'epoch': 3, 'Training Loss': 0.23756956846215005, 'Training Accur.': 0.9783354390601711, 'Training Precision (macro)': 0.9610745330147367, 'Training Precision (micro)': 0.9783354390601711, 'Training Recall (macro)': 0.946413011270549, 'Training Recall (micro)': 0.9783354390601711, 'Training F1 (macro)': 0.953525960882591, 'Training F1 (micro)': 0.978335439060171, 'Valid. Loss': 0.13067371077421638, 'Valid. Accur.': 0.9602816358024691, 'Valid. Precision (macro)': 0.9264184242000986, 'Valid. Precision (micro)': 0.9633666549222986, 'Valid. Recall (macro)': 0.9092629976823858, 'Valid. Recall (micro)': 0.9633666549222986, 'Valid. F1 (macro)': 0.9170846019189332, 'Valid. F1 (micro)': 0.9633666549222986, 'Training Time': '0:05:12', 'Validation Time': '0:00:24'}], [{'epoch': 1, 'Training Loss': 0.24611210421074267, 'Training Accur.': 0.9750630048681258, 'Training Precision (macro)': 0.9541967910911416, 'Training Precision (micro)': 0.9750630048681258, 'Training Recall (macro)': 0.9404758749457071, 'Training Recall (micro)': 0.9750630048681258, 'Training F1 (macro)': 0.9471367269846045, 'Training F1 (micro)': 0.9750630048681258, 'Valid. Loss': 0.09390891660694722, 'Valid. Accur.': 0.9857831790123457, 'Valid. Precision (macro)': 0.9757807711606367, 'Valid. Precision (micro)': 0.9873657055663059, 'Valid. Recall (macro)': 0.9715478266454364, 'Valid. Recall (micro)': 0.9873657055663059, 'Valid. F1 (macro)': 0.9735981102305596, 'Valid. F1 (micro)': 0.9873657055663059, 'Training Time': '0:05:12', 'Validation Time': '0:00:24'}, {'epoch': 2, 'Training Loss': 0.2292060608087584, 'Training Accur.': 0.9855090339049731, 'Training Precision (macro)': 0.9693387991229232, 'Training Precision (micro)': 0.9855090339049731, 'Training Recall (macro)': 0.967616045980185, 'Training Recall (micro)': 0.9855090339049731, 'Training F1 (macro)': 0.9684033171220996, 'Training F1 (micro)': 0.9855090339049731, 'Valid. Loss': 0.08794570058860161, 'Valid. Accur.': 0.9840856481481481, 'Valid. Precision (macro)': 0.9631455280619518, 'Valid. Precision (micro)': 0.9824486972102415, 'Valid. Recall (macro)': 0.9580519986098248, 'Valid. Recall (micro)': 0.9824486972102415, 'Valid. F1 (macro)': 0.9604671907833743, 'Valid. F1 (micro)': 0.9824486972102415, 'Training Time': '0:05:12', 'Validation Time': '0:00:24'}, {'epoch': 3, 'Training Loss': 0.2195930203033048, 'Training Accur.': 0.9893299358265193, 'Training Precision (macro)': 0.9779356198022408, 'Training Precision (micro)': 0.9893299358265193, 'Training Recall (macro)': 0.9776446744311246, 'Training Recall (micro)': 0.9893299358265193, 'Training F1 (macro)': 0.9777685548688825, 'Training F1 (micro)': 0.9893299358265193, 'Valid. Loss': 0.08859866595378628, 'Valid. Accur.': 0.9835069444444444, 'Valid. Precision (macro)': 0.9592747804409635, 'Valid. Precision (micro)': 0.9818520208488821, 'Valid. Recall (macro)': 0.9717509175820291, 'Valid. Recall (micro)': 0.9818520208488821, 'Valid. F1 (macro)': 0.9653250275869772, 'Valid. F1 (micro)': 0.9818520208488821, 'Training Time': '0:05:12', 'Validation Time': '0:00:24'}], [{'epoch': 1, 'Training Loss': 0.22761702222186467, 'Training Accur.': 0.9871807374009257, 'Training Precision (macro)': 0.9742863042027845, 'Training Precision (micro)': 0.9871807374009257, 'Training Recall (macro)': 0.971126613150352, 'Training Recall (micro)': 0.9871807374009257, 'Training F1 (macro)': 0.9726882425440804, 'Training F1 (micro)': 0.9871807374009257, 'Valid. Loss': 0.07059373630693665, 'Valid. Accur.': 0.9930555555555556, 'Valid. Precision (macro)': 0.9859572189201115, 'Valid. Precision (micro)': 0.9955222270032181, 'Valid. Recall (macro)': 0.9955513482949297, 'Valid. Recall (micro)': 0.9955222270032181, 'Valid. F1 (macro)': 0.9906754313878638, 'Valid. F1 (micro)': 0.9955222270032181, 'Training Time': '0:05:12', 'Validation Time': '0:00:24'}, {'epoch': 2, 'Training Loss': 0.21802898340447005, 'Training Accur.': 0.9898819663015491, 'Training Precision (macro)': 0.978318972881841, 'Training Precision (micro)': 0.9898819663015491, 'Training Recall (macro)': 0.9780507507243948, 'Training Recall (micro)': 0.9898819663015491, 'Training F1 (macro)': 0.9781763416844773, 'Training F1 (micro)': 0.9898819663015491, 'Valid. Loss': 0.06131540611386299, 'Valid. Accur.': 0.9950810185185185, 'Valid. Precision (macro)': 0.9915078981782204, 'Valid. Precision (micro)': 0.9927533087244163, 'Valid. Recall (macro)': 0.979032282386567, 'Valid. Recall (micro)': 0.9927533087244163, 'Valid. F1 (macro)': 0.9850023130351667, 'Valid. F1 (micro)': 0.9927533087244163, 'Training Time': '0:05:12', 'Validation Time': '0:00:24'}, {'epoch': 3, 'Training Loss': 0.21212367751570635, 'Training Accur.': 0.9944393277660785, 'Training Precision (macro)': 0.9892700304122704, 'Training Precision (micro)': 0.9944393277660785, 'Training Recall (macro)': 0.986164962162589, 'Training Recall (micro)': 0.9944393277660785, 'Training F1 (macro)': 0.9877042664153268, 'Training F1 (micro)': 0.9944393277660785, 'Valid. Loss': 0.060468925853018406, 'Valid. Accur.': 0.9953703703703703, 'Valid. Precision (macro)': 0.9847172346867995, 'Valid. Precision (micro)': 0.9937536376512704, 'Valid. Recall (macro)': 0.9904499756089997, 'Valid. Recall (micro)': 0.9937536376512704, 'Valid. F1 (macro)': 0.9874801534838531, 'Valid. F1 (micro)': 0.9937536376512704, 'Training Time': '0:05:12', 'Validation Time': '0:00:24'}], [{'epoch': 1, 'Training Loss': 0.2158578360843104, 'Training Accur.': 0.9915640505361414, 'Training Precision (macro)': 0.9834929919299163, 'Training Precision (micro)': 0.9915640505361414, 'Training Recall (macro)': 0.9805701931223186, 'Training Recall (micro)': 0.9915640505361414, 'Training F1 (macro)': 0.9820212136373636, 'Training F1 (micro)': 0.9915640505361414, 'Valid. Loss': 0.05564827568553112, 'Valid. Accur.': 0.9973958333333334, 'Valid. Precision (macro)': 0.9923532694467263, 'Valid. Precision (micro)': 0.9973426303616002, 'Valid. Recall (macro)': 0.9968895060735542, 'Valid. Recall (micro)': 0.9973426303616002, 'Valid. F1 (macro)': 0.9946029168085952, 'Valid. F1 (micro)': 0.9973426303616002, 'Training Time': '0:05:12', 'Validation Time': '0:00:24'}, {'epoch': 2, 'Training Loss': 0.21108359157346016, 'Training Accur.': 0.993726688075505, 'Training Precision (macro)': 0.9859314767185571, 'Training Precision (micro)': 0.993726688075505, 'Training Recall (macro)': 0.9866920371678395, 'Training Recall (micro)': 0.993726688075505, 'Training F1 (macro)': 0.986296550669947, 'Training F1 (micro)': 0.993726688075505, 'Valid. Loss': 0.05338205814499546, 'Valid. Accur.': 0.9976851851851852, 'Valid. Precision (macro)': 0.9892386177608478, 'Valid. Precision (micro)': 0.9959415413715943, 'Valid. Recall (macro)': 0.9939387275982303, 'Valid. Recall (micro)': 0.9959415413715943, 'Valid. F1 (macro)': 0.9915653028563042, 'Valid. F1 (micro)': 0.9959415413715943, 'Training Time': '0:05:12', 'Validation Time': '0:00:24'}, {'epoch': 3, 'Training Loss': 0.20954978805641794, 'Training Accur.': 0.9961402573034716, 'Training Precision (macro)': 0.9913259090781434, 'Training Precision (micro)': 0.9961402573034716, 'Training Recall (macro)': 0.9921464149852453, 'Training Recall (micro)': 0.9961402573034716, 'Training F1 (macro)': 0.9917326810625554, 'Training F1 (micro)': 0.9961402573034716, 'Valid. Loss': 0.05085839952031771, 'Valid. Accur.': 0.9976851851851852, 'Valid. Precision (macro)': 0.9964910458738283, 'Valid. Precision (micro)': 0.9980414949096136, 'Valid. Recall (macro)': 0.9948360007062832, 'Valid. Recall (micro)': 0.9980414949096136, 'Valid. F1 (macro)': 0.9956469339527134, 'Valid. F1 (micro)': 0.9980414949096136, 'Training Time': '0:05:12', 'Validation Time': '0:00:24'}]]
