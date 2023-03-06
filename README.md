@@ -45,9 +45,12 @@ The whole structure of the project is as follows:
 User has the responsibility to choose those cases that are of their interest. It is required to store the following information into an excel file which has to be located in "/input/" for each court. Files must not have a header, but a list of documents that contain the next fields: "url", "court", "accused", "case", "date", and "witness". (These fields can be modified accordingly to the needs of the user. However, it has been stated as a template).
 
 Depending on the court, the user has to copy and paste the link of the cases' documents in specific formats (i.e. user has to state properly the link to access specific resources on the website of the court).
-* [International criminal tribunal for the former Yugoslavia](https://www.icty.org/). The required format is HTML; e.g. https://www.icty.org/x/cases/stakic/trans/en/020524IT.htm
-* [Extraordinary Chamber in the Courts of Cambodia](https://www.eccc.gov.kh/). The required format is PDF; e.g. http://www.eccc.gov.kh/sites/default/files/documents/courtdoc/%5Bdate-in-tz%5D/E1_67.1_TR001_20090824_Final_EN_Pub.pdf
-* [International Criminal Tribunal for Rwanda](https://ucr.irmct.org/). The required format is DOC (word document); e.g. https://ucr.irmct.org/LegalRef/CMSDocStore/Public/English/Transcript/NotIndexable/ICTR-98-44/TRS15978R0000616228.DOC
+
+| Court              | Required format     | Example |
+| ---                   | :---:             | --- |
+| [International criminal tribunal for the former Yugoslavia](https://www.icty.org/) | HTM(L) | https://www.icty.org/x/cases/stakic/trans/en/020524IT.htm |
+| [Extraordinary Chamber in the Courts of Cambodia](https://www.eccc.gov.kh/) | PDF | http://www.eccc.gov.kh/sites/default/files/documents/courtdoc/%5Bdate-in-tz%5D/E1_67.1_TR001_20090824_Final_EN_Pub.pdf |
+| [International Criminal Tribunal for Rwanda](https://ucr.irmct.org/) | DOC | https://ucr.irmct.org/LegalRef/CMSDocStore/Public/English/Transcript/NotIndexable/ICTR-98-44/TRS15978R0000616228.DOC |
 
 ### WebScraping
 WebScraping is a way to extract information that has been published on the internet. Specific restrictions and permissions apply depending on the website where this data is obtained. In the case of the courts, ICTR does not specify any restriction and for the remaining two courts, WebScraping is allowed. 
