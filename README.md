@@ -1,5 +1,5 @@
 # AutomatedTraumaDetectionInGCT
-Repository of the "Automated Trauma Detection in Genocide Court Transcripts" project
+Repository of the "Automated Trauma Detection in Genocide Court Transcripts" project.
 
 As explained by Schirmer et al. in "Uncovering Trauma in Genocide Tribunals: An NLP Approach Using the Genocide Transcript Corpus", this project aims to use NLP techniques to uncover and analyze exposure to trauma to which witnesses in international criminal tribunals are subjected when recounting their experiences in court.
 
@@ -127,3 +127,7 @@ Implementation that allows to load the model and execute some of the features pr
 ![Active Learning 01](doc_resources/images/ActLrng01.png)
 ![Active Learning 02](doc_resources/images/ActLrng02.png)
 ![Active Learning 03](doc_resources/images/ActLrng03.png)
+
+## Citation
+
+This job resulted in the [acceptance](https://icail2023.di.uminho.pt/) and publication of the paper "Uncovering Trauma in Genocide Tribunals: An NLP Approach Using the Genocide Transcript Corpus" conducted by Miriam Schirmer, Isaac Misael Olguín Nolasco, Edoardo Mosca, Shanshan Xu, and Jürgen Pfeffer, which was presented in the 19th International Conference on Artificial Intelligence and Law ([ICAIL 2023](https://icail2023.di.uminho.pt/)) in Braga, Portugal.
